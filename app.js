@@ -7,7 +7,7 @@ const clasificationRouters = require('./routers/clasificationRouters');
 const batchRouters = require('./routers/batchRouters');
 const providerRouters = require('./routers/providerRouters');
 const noveltyRouters = require('./routers/noveltyRouters');
-const testRouters = require('./routers/testRouters');
+const webhookRouters = require('./routers/webhookRouters');
 const app  = express();
 const errorHandler = require('./middleware/errorHandler'); 
 
@@ -25,7 +25,7 @@ app.use('/v1/clasifications', clasificationRouters);
 app.use('/v1/providers', providerRouters);
 app.use('/v1/batchs', batchRouters);
 app.use('/v1/novelties', noveltyRouters);
-app.use('/v1/wp-test', testRouters);
+app.use('/v1/webhooks', webhookRouters);
 
 app.use(errorHandler);
 
