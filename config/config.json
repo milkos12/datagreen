@@ -1,0 +1,24 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "root",
+      "database": "datagreen",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "test": {
+      "username": "postgres",
+      "password": "root",
+      "database": "nombre_base_de_datos_prueba",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "production": {
+      "username": "postgres",
+      "password": "root",
+      "database": "nombre_base_de_datos_produccion",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    }
+  }
+  
