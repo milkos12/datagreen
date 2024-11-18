@@ -8,8 +8,13 @@ const batchRouters = require('./routers/batchRouters');
 const providerRouters = require('./routers/providerRouters');
 const noveltyRouters = require('./routers/noveltyRouters');
 const webhookRouters = require('./routers/webhookRouters');
+const flowRouters = require('./routers/flowRouters');
+const modelRouters = require('./routers/modelRouters');
+const stepRouters = require('./routers/stepRouters');
+const flowHistorieRouters = require('./routers/flowHistorieRouters');
+const flowHistoryDataRouters = require('./routers/flowHistoryDataRouters');
 const app  = express();
-const errorHandler = require('./middleware/errorHandler'); 
+const errorHandler = require('./middlewares/errorHandler'); 
 
 app.use(express.json());
 
@@ -26,6 +31,11 @@ app.use('/v1/providers', providerRouters);
 app.use('/v1/batchs', batchRouters);
 app.use('/v1/novelties', noveltyRouters);
 app.use('/v1/webhooks', webhookRouters);
+app.use('/v1/flows', flowRouters);
+app.use('/v1/models', modelRouters);
+app.use('/v1/steps', stepRouters);
+app.use('/v1/flowHistories', flowHistorieRouters);
+app.use('/v1/flowHistoryData', flowHistoryDataRouters);
 
 app.use(errorHandler);
 

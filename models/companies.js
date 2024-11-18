@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   
     Company.associate = (models) => {
       Company.hasMany(models.User, { foreignKey: 'company_id', as: 'users' });
+      Company.hasMany(models.Flow, { foreignKey: 'ownerCompanyId', as:'flows' });
     };
   
     return Company;

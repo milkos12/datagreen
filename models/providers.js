@@ -15,6 +15,15 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: false,
+    },
+    document_number: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     company_id: {
       type: DataTypes.UUID,
       allowNull: false,

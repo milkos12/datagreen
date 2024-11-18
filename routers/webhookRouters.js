@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const { messageFlowsMenu } = require('./handlersFlows/menuMainHandler'); 
 const { User } = require('../models'); // Adjust the path based on your project structure
 require('dotenv').config(); // Load environment variables
 
@@ -55,12 +56,7 @@ router.post('/', asyncHandler(async (req, res) => {
             // Remove any non-digit characters (e.g., '+' or '-')
             fromNumber = fromNumber.replace(/\D/g, '');
 
-            // Search for the user with the resulting phone number
-            const user = await User.findOne({
-                where: {
-                    phone_number: fromNumber
-                }
-            });
+            const { user, endList} = await messageFlowsMenu(fromNumber);
 
             if (user) {
                 console.log(`User found: ${user.name} (Phone: ${user.phone_number})`);
@@ -79,11 +75,11 @@ router.post('/', asyncHandler(async (req, res) => {
                     quoted: "SsYyW0zf7HCT0mpPCE-KcuK1epZaZaKh-ubbe3C",
                     ephemeral: 604800,
                     edit: "bL_y-DqNa2IvEdQ",
-                    body: messageBody,
+                    body: endList,
                     typing_time: 0,
                     no_link_preview: true,
                     mentions: [
-                        `${toNumber}`
+                        `9995671366632@s.whatsapp.net`
                     ],
                     view_once: true
                 };

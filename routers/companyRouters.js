@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Company, User } = require('../models');
+const { Company, User, Flow } = require('../models');
 
 // Middleware para manejar errores asíncronos
 const asyncHandler = fn => (req, res, next) => {
@@ -12,6 +12,11 @@ router.get('/', asyncHandler(async (req, res) => {
             model: User,
             as: 'users',
             attributes: ['user_id', 'name', 'phone_number'] // Selecciona los campos que deseas incluir
+        },
+        {
+            model: Flow,
+            as: 'flows',
+            attributes: ['flow_id', 'name'] // Selecciona los campos que deseas incluir
         }]
     });
     res.json(allCompanies);
@@ -24,6 +29,11 @@ router.get('/:id', asyncHandler(async (req, res) => {
             model: User,
             as: 'users',
             attributes: ['user_id', 'name', 'phone_number']
+        },
+        {
+            model: Flow,
+            as: 'flows',
+            attributes: ['flow_id', 'name'] // Selecciona los campos que deseas incluir
         }]
     });
 

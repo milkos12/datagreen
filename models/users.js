@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       phone_number: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
       },
       company_id: {
         type: DataTypes.UUID,
@@ -34,6 +34,15 @@ module.exports = (sequelize, DataTypes) => {
   
     User.associate = (models) => {
       User.belongsTo(models.Company, { foreignKey: 'company_id', as: 'company' });
+
+      // Associations with Flow, ModelItem, and Step
+      User.hasMany(models.Flow, { foreignKey: 'createdById', as: 'flows' });
+      User.hasMany(models.ModelItem, { foreignKey: 'createdById', as: 'models' });
+      User.hasMany(models.Step, { foreignKey: 'createdById', as: 'steps' });
+
+      // Associations with FlowHistory and FlowHistoryData
+      User.hasMany(models.FlowHistory, { foreignKey: 'createdById', as: 'flowHistories' });
+      User.hasMany(models.FlowHistoryData, { foreignKey: 'createdById', as: 'flowHistoryData' });
     };
   
     return User;
