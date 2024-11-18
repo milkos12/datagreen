@@ -72,11 +72,13 @@ router.get('/:id',
 router.post('/create',
     validate([
         body('name').notEmpty().withMessage('Name is required'),
+        body('phone_number').notEmpty().withMessage('Phone number is required'),
+        body('document_number').notEmpty().withMessage('Documnet number is required'),
         body('company_id').isUUID().withMessage('Valid Company ID is required'),
         body('created_by').isUUID().withMessage('Valid User ID is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { name, company_id, created_by } = req.body;
+        const { name, company_id, created_by, phone_number, document_number } = req.body;
 
         // Check if the company exists
         const company = await Company.findByPk(company_id);
@@ -94,7 +96,9 @@ router.post('/create',
         const newProvider = await Provider.create({
             name,
             company_id,
-            created_by
+            created_by, 
+            phone_number,
+            document_number
         });
 
         res.status(201).json(newProvider);
@@ -105,12 +109,14 @@ router.put('/:id',
     validate([
         param('id').isUUID().withMessage('Provider ID is invalid'),
         body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+        body('phone_number').notEmpty().withMessage('Phone number is required'),
+        body('document_number').notEmpty().withMessage('Documnet number is required'),
         body('company_id').optional().isUUID().withMessage('Valid Company ID is required'),
         body('created_by').optional().isUUID().withMessage('Valid User ID is required')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { name, company_id, created_by } = req.body;
+        const { name, company_id, created_by, phone_number, document_number } = req.body;
 
         const provider = await Provider.findByPk(id);
         if (!provider) {
@@ -137,6 +143,8 @@ router.put('/:id',
 
         // Update other fields
         provider.name = name !== undefined ? name : provider.name;
+        provider.phone_number = phone_number !== undefined ? phone_number : provider.phone_number;
+        provider.document_number = document_number !== undefined ? document_number : provider.document_number;
 
         await provider.save();
 
