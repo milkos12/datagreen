@@ -41,12 +41,14 @@ router.post('/', asyncHandler(async (req, res) => {
     for (const message of payload.messages) {
         try {
             // Extract the 'from' number
-            let fromNumber = message.from;
+            let fromNumber = message.chat_id;
 
             if (!fromNumber) {
                 console.warn('Message missing "from" field:', message);
                 continue; // Skip this message
             }
+
+            fromNumber = fromNumber.replace('@s.whatsapp.net','');
 
             // Remove the initial '57' if present
             if (fromNumber.startsWith('57')) {
