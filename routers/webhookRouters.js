@@ -4,8 +4,8 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu } = require('./handlersFlows/menuMainHandler'); 
-const { User } = require('../models'); // Adjust the path based on your project structure
-require('dotenv').config(); // Load environment variables
+const { User } = require('../models'); // Ajusta la ruta según tu estructura de proyecto
+require('dotenv').config(); // Cargar variables de entorno
 
 // Middleware to handle asynchronous errors
 const asyncHandler = fn => (req, res, next) => {
@@ -40,6 +40,12 @@ router.post('/', asyncHandler(async (req, res) => {
     // Iterate through each message
     for (const message of payload.messages) {
         try {
+            // **Nueva Verificación: Ignorar mensajes enviados por el bot**
+            if (message.from_me) {
+                console.log('Mensaje enviado por el bot, ignorando.');
+                continue; // Salta al siguiente mensaje
+            }
+
             // Extract the 'from' number
             let fromNumber = message.chat_id;
 
@@ -58,7 +64,7 @@ router.post('/', asyncHandler(async (req, res) => {
             // Remove any non-digit characters (e.g., '+' or '-')
             fromNumber = fromNumber.replace(/\D/g, '');
 
-            const { user, endList} = await messageFlowsMenu(fromNumber);
+            const { user, endList } = await messageFlowsMenu(fromNumber);
 
             if (user) {
                 console.log(`User found: ${user.name} (Phone: ${user.phone_number})`);
@@ -66,24 +72,11 @@ router.post('/', asyncHandler(async (req, res) => {
                 // Prepare the 'to' field with '57' prefix
                 const toNumber = `57${user.phone_number}@s.whatsapp.net`;
 
-                // Prepare the message body, customize as needed
-                const messageBody = `Hello ${user.name}, this is a friendly message from our system!`;
-
                 // Prepare the payload for WhatsApp API
                 const whatsappPayload = {
                     to: toNumber,
-                    // quoted and edit fields should reference existing messages; handle accordingly
-                    // For demonstration, we'll omit them or set to null if not applicable
-                    quoted: "SsYyW0zf7HCT0mpPCE-KcuK1epZaZaKh-ubbe3C",
-                    ephemeral: 604800,
-                    edit: "bL_y-DqNa2IvEdQ",
                     body: endList,
-                    typing_time: 0,
-                    no_link_preview: true,
-                    mentions: [
-                        `9995671366632@s.whatsapp.net`
-                    ],
-                    view_once: true
+                    // Otros campos según tu necesidad
                 };
 
                 // Make the POST request to WhatsApp API
