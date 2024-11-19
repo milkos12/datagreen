@@ -36,7 +36,7 @@ const messageFlowsMenu = async (fromNumber) => {
             phone_number: fromNumber
         }
     });
-
+    console.log(fromNumber,"**************************************two",user);
     const namesOfFlowsListText = await getNamesOfFlows(user);
     const endList = `Hola ${user.dataValues.name}!\n¿Qué necesitas hascer?\n\n*Por favor responde a este mensaje con un numero-que corresponda a lo que necesitas hacer*\n\n\n${namesOfFlowsListText}`;
 
