@@ -19,13 +19,13 @@ const getNamesOfFlows = async (user) => {
             ownerCompanyId: companyToTheBelongsUser
         }
     });
-
+    console.log("**************************************one");
     let listTextFLows = '';
-    console.log("++++++++++++++++++++++++++++",flows[0]);
+
     flows.forEach((item, index) => {
         listTextFLows = `${listTextFLows}${index + 1}. ${item.dataValues.name}\n`;
     });
-
+    console.log("**************************************one");
     return listTextFLows;
 }
 
@@ -36,12 +36,10 @@ const messageFlowsMenu = async (fromNumber) => {
             phone_number: fromNumber
         }
     });
-    console.log('%%%%%%%%%%%%%%%  ', user.dataValues.company_id);
 
     const namesOfFlowsListText = await getNamesOfFlows(user);
     const endList = `Hola ${user.dataValues.name}!\n¿Qué necesitas hascer?\n\n*Por favor responde a este mensaje con un numero-que corresponda a lo que necesitas hacer*\n\n\n${namesOfFlowsListText}`;
 
-    console.log(endList);
     return { user, endList};
 }
 
