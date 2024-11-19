@@ -19,7 +19,7 @@ const getNamesOfFlows = async (user) => {
             ownerCompanyId: companyToTheBelongsUser
         }
     });
-    console.log("**************************************one");
+    console.log("**************************************ooooooooooooooooooo", flows);
     let listTextFLows = '';
 
     flows.forEach((item, index) => {
