@@ -3,19 +3,19 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu } = require('./handlersFlows/menuMainHandler'); 
-const { User } = require('../models'); // Ajusta la ruta según tu estructura de proyecto
+const { messageFlowsMenu, processUserResponse } = require('./handlersFlows/menuMainHandler'); 
+const { User, FlowHistory, Step, Flow } = require('../models'); // Asegúrate de ajustar las rutas según tu estructura
 require('dotenv').config(); // Cargar variables de entorno
 
-// Middleware to handle asynchronous errors
+// Middleware para manejar errores asíncronos
 const asyncHandler = fn => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// Middleware to verify API key (Optional but recommended)
+// Middleware para verificar la API key (opcional pero recomendado)
 const verifyApiKey = (req, res, next) => {
     const apiKey = req.headers['x-api-key'];
-    const validApiKey = process.env.WHATSAPP_API_KEY; // Store securely in .env
+    const validApiKey = process.env.WHATSAPP_API_KEY; // Almacenar de forma segura en .env
 
     if (apiKey === validApiKey) {
         next();
@@ -24,80 +24,106 @@ const verifyApiKey = (req, res, next) => {
     }
 };
 
-// Apply the API key verification middleware
+// Aplicar el middleware de verificación de API key
 router.use(verifyApiKey);
 
-// POST Route to Handle Incoming Messages
+// POST Route para manejar mensajes entrantes
 router.post('/', asyncHandler(async (req, res) => {
     const payload = req.body;
 
-    // Validate payload structure
+    // Validar la estructura del payload
     if (!payload || !Array.isArray(payload.messages)) {
-        console.error('Invalid payload structure:', payload);
-        return res.status(400).send('Invalid payload structure');
+        console.error('Estructura de payload inválida:', payload);
+        return res.status(400).send('Estructura de payload inválida');
     }
 
-    // Iterate through each message
+    // Iterar a través de cada mensaje
     for (const message of payload.messages) {
         try {
             // **Nueva Verificación: Ignorar mensajes enviados por el bot**
-            if (message.from_me) {
+            if (message.from_me === 'true') {
                 console.log('Mensaje enviado por el bot, ignorando.');
-                continue; // Salta al siguiente mensaje
+                continue; // Saltar al siguiente mensaje
             }
 
-            // Extract the 'from' number
+            // Extraer el número 'from'
             let fromNumber = message.chat_id;
 
             if (!fromNumber) {
-                console.warn('Message missing "from" field:', message);
-                continue; // Skip this message
+                console.warn('Mensaje sin el campo "from":', message);
+                continue; // Saltar este mensaje
             }
 
             fromNumber = fromNumber.replace('@s.whatsapp.net','');
 
-            // Remove the initial '57' if present
+            // Eliminar el prefijo '57' si está presente
             if (fromNumber.startsWith('57')) {
                 fromNumber = fromNumber.slice(2);
             }
 
-            // Remove any non-digit characters (e.g., '+' or '-')
+            // Eliminar cualquier carácter no numérico
             fromNumber = fromNumber.replace(/\D/g, '');
 
-            const { user, endList } = await messageFlowsMenu(fromNumber);
+            // Obtener el usuario y verificar si está en un flujo activo
+            const user = await User.findOne({ where: { phone_number: fromNumber } });
 
-            if (user) {
-                console.log(`User found: ${user.name} (Phone: ${user.phone_number})`);
+            if (!user) {
+                console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
+                continue;
+            }
 
-                // Prepare the 'to' field with '57' prefix
-                const toNumber = `57${user.phone_number}@s.whatsapp.net`;
+            // Verificar si el usuario tiene un flujo activo
+            const activeFlow = await FlowHistory.findOne({
+                where: {
+                    createdById: user.user_id,
+                    isCompleted: false
+                },
+                include: [{
+                    model: Flow,
+                    as: 'flow' // Especifica el alias definido en la asociación
+                }]
+            });
 
-                // Prepare the payload for WhatsApp API
-                const whatsappPayload = {
-                    to: toNumber,
-                    body: endList,
-                    // Otros campos según tu necesidad
-                };
-
-                // Make the POST request to WhatsApp API
-                try {
-                    const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
-                        headers: {
-                            'Authorization': process.env.WHATSAPP_API_TOKEN,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    console.log(`WhatsApp message sent to ${toNumber}:`, response.data);
-                } catch (apiError) {
-                    console.error(`Error sending WhatsApp message to ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
-                }
+            if (activeFlow) {
+                // El usuario está respondiendo a un flujo activo
+                await processUserResponse(user, activeFlow, message);
             } else {
-                console.log(`No user found with phone number: ${fromNumber}`);
+                // El usuario está iniciando un nuevo flujo
+                const { user: foundUser, endList } = await messageFlowsMenu(fromNumber);
+
+                if (foundUser) {
+                    console.log(`Usuario encontrado: ${foundUser.name} (Teléfono: ${foundUser.phone_number})`);
+
+                    // Preparar el 'to' con el prefijo '57'
+                    const toNumber = `57${foundUser.phone_number}@s.whatsapp.net`;
+
+                    // Preparar el payload para la API de WhatsApp
+                    const whatsappPayload = {
+                        to: toNumber,
+                        body: endList,
+                        // Otros campos según tu necesidad
+                    };
+
+                    // Enviar el mensaje a WhatsApp
+                    try {
+                        const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
+                            headers: {
+                                'Authorization': process.env.WHATSAPP_API_TOKEN,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
+                    } catch (apiError) {
+                        console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
+                    }
+                } else {
+                    console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
+                }
             }
 
         } catch (err) {
-            console.error('Error processing message:', message, err);
+            console.error('Error al procesar el mensaje:', message, err);
         }
     }
 

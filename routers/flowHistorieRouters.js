@@ -92,10 +92,12 @@ router.get('/:id',
 router.post('/create',
     validate([
         body('flowId').isUUID().withMessage('Valid Flow ID is required'),
-        body('createdById').isUUID().withMessage('Valid User ID is required')
+        body('createdById').isUUID().withMessage('Valid User ID is required'),
+        body('currentStep').isDecimal().withMessage('Valid Step is required'),
+        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { flowId, createdById } = req.body;
+        const { flowId, createdById, currentStep, isCompleted } = req.body;
 
         // Check if the flow exists
         const flow = await Flow.findByPk(flowId);
@@ -112,7 +114,9 @@ router.post('/create',
         // Create the flow history
         const newFlowHistory = await FlowHistory.create({
             flowId,
-            createdById
+            createdById,
+            currentStep,
+            isCompleted
         });
 
         res.status(201).json(newFlowHistory);
@@ -124,11 +128,13 @@ router.put('/:id',
     validate([
         param('id').isUUID().withMessage('FlowHistory ID is invalid'),
         body('flowId').optional().isUUID().withMessage('Valid Flow ID is required'),
-        body('createdById').optional().isUUID().withMessage('Valid User ID is required')
+        body('createdById').optional().isUUID().withMessage('Valid User ID is required'),
+        body('currentStep').isDecimal().withMessage('Valid Step is required'),
+        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { flowId, createdById } = req.body;
+        const { flowId, createdById, currentStep, isCompleted } = req.body;
 
         const flowHistory = await FlowHistory.findByPk(id);
         if (!flowHistory) {
@@ -152,6 +158,10 @@ router.put('/:id',
             }
             flowHistory.createdById = createdById;
         }
+
+        // Update other fields
+        flowHistory.currentStep = currentStep !== undefined ? currentStep : flowHistory.currentStep;
+        flowHistory.isCompleted = isCompleted !== undefined ? isCompleted : flowHistory.isCompleted;
 
         await flowHistory.save();
 

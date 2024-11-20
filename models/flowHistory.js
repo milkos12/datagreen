@@ -27,6 +27,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL'
+    },
+    isCompleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    currentStep: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     }
   }, {
     modelName: 'FlowHistory',
