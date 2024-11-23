@@ -41,7 +41,7 @@ router.get('/', asyncHandler(async (req, res) => {
     res.json(allFlowHistories);
 }));
 
-// GET /flowHistories/:id - Retrieve a flow history by ID
+// GET /flowHistories/:id - Retrieve a flow history by ID relatedModelObjectId
 router.get('/:id',
     validate([
         param('id').isUUID().withMessage('FlowHistory ID is invalid')
@@ -94,10 +94,11 @@ router.post('/create',
         body('flowId').isUUID().withMessage('Valid Flow ID is required'),
         body('createdById').isUUID().withMessage('Valid User ID is required'),
         body('currentStep').isDecimal().withMessage('Valid Step is required'),
-        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required')
+        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required'),
+        param('relatedModelObjectId').isUUID().withMessage('relatedModelObjectId ID is invalid')
     ]),
     asyncHandler(async (req, res) => {
-        const { flowId, createdById, currentStep, isCompleted } = req.body;
+        const { flowId, createdById, currentStep, isCompleted, relatedModelObjectId } = req.body;
 
         // Check if the flow exists
         const flow = await Flow.findByPk(flowId);
@@ -116,7 +117,8 @@ router.post('/create',
             flowId,
             createdById,
             currentStep,
-            isCompleted
+            isCompleted,
+            relatedModelObjectId
         });
 
         res.status(201).json(newFlowHistory);
@@ -130,7 +132,8 @@ router.put('/:id',
         body('flowId').optional().isUUID().withMessage('Valid Flow ID is required'),
         body('createdById').optional().isUUID().withMessage('Valid User ID is required'),
         body('currentStep').isDecimal().withMessage('Valid Step is required'),
-        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required')
+        body('isCompleted').isBoolean().withMessage('Valid isCompleted is required'),
+        param('relatedModelObjectId').isUUID().withMessage('relatedModelObjectId ID is invalid')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
@@ -159,9 +162,10 @@ router.put('/:id',
             flowHistory.createdById = createdById;
         }
 
-        // Update other fields
+        // Update other fields relatedModelObjectId
         flowHistory.currentStep = currentStep !== undefined ? currentStep : flowHistory.currentStep;
         flowHistory.isCompleted = isCompleted !== undefined ? isCompleted : flowHistory.isCompleted;
+        flowHistory.relatedModelObjectId = relatedModelObjectId !== undefined ? relatedModelObjectId : flowHistory.relatedModelObjectId;
 
         await flowHistory.save();
 

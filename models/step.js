@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    modelNameColumn: { 
+      type: DataTypes.STRING,
+      allowNull: true 
+    },
     flowId: {
       type: DataTypes.UUID,
       allowNull: false,

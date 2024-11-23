@@ -14,15 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity_of_stems: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      validate: {
-        isDecimal: true,
-        min: 0
-      }
+      allowNull: true
     },
     batch_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Batches',
         key: 'batch_id'
@@ -46,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     created_by: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Users',
         key: 'user_id'

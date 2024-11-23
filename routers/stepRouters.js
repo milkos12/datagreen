@@ -64,17 +64,18 @@ router.get('/:id',
     })
 );
 
-// POST /steps/create - Create a new step
+// POST /steps/create - Create a new step 
 router.post('/create',
     validate([
         body('message').notEmpty().withMessage('Message is required'),
         body('order').isInt({ min: 1 }).withMessage('Order must be a positive integer'),
         body('flowId').isUUID().withMessage('Valid Flow ID is required'),
         body('modelId').isUUID().withMessage('Valid Model ID is required'),
-        body('createdById').isUUID().withMessage('Valid User ID is required')
+        body('createdById').isUUID().withMessage('Valid User ID is required'),
+        body('modelNameColumn').isString().withMessage('Valid model name column ID is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { message, order, flowId, modelId, createdById } = req.body;
+        const { message, order, flowId, modelId, createdById, modelNameColumn } = req.body;
 
         // Check if the flow exists
         const flow = await Flow.findByPk(flowId);
@@ -100,13 +101,18 @@ router.post('/create',
             return res.status(400).json({ message: 'Step order must be unique within the flow' });
         }
 
+        if (modelNameColumn == '') {
+            return res.status(400).json({ message: 'modelNameColumn is required' });
+        }
+
         // Create the step
         const newStep = await Step.create({
             message,
             order,
             flowId,
             modelId,
-            createdById
+            createdById,
+            modelNameColumn
         });
 
         res.status(201).json(newStep);
@@ -121,11 +127,12 @@ router.put('/:id',
         body('order').optional().isInt({ min: 1 }).withMessage('Order must be a positive integer'),
         body('flowId').optional().isUUID().withMessage('Valid Flow ID is required'),
         body('modelId').optional().isUUID().withMessage('Valid Model ID is required'),
-        body('createdById').optional().isUUID().withMessage('Valid User ID is required')
+        body('createdById').optional().isUUID().withMessage('Valid User ID is required'),
+        body('modelNameColumn').isString().withMessage('Valid model name column ID is required')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { message, order, flowId, modelId, createdById } = req.body;
+        const { message, order, flowId, modelId, createdById, modelNameColumn } = req.body;
 
         const step = await Step.findByPk(id);
         if (!step) {
@@ -170,6 +177,8 @@ router.put('/:id',
 
         // Update other fields
         step.message = message !== undefined ? message : step.message;
+        step.modelNameColumn = modelNameColumn !== undefined ? modelNameColumn : step.modelNameColumn;
+        
 
         await step.save();
 

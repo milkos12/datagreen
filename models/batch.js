@@ -10,14 +10,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true
       }
     },
     quantity_of_stems: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      allowNull: true,
       validate: {
         isDecimal: true,
         min: 0
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     provider_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Providers',
         key: 'provider_id'
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     classification_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Classifications',
         key: 'classification_id'
@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     product_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Products',
         key: 'product_id'
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     measure_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Measures',
         key: 'measure_id'
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     created_by: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Users',
         key: 'user_id'
@@ -65,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     company_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Companies',
         key: 'company_id'

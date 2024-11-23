@@ -35,6 +35,20 @@ module.exports = (sequelize, DataTypes) => {
     currentStep: {
       type: DataTypes.INTEGER,
       defaultValue: 0
+    },
+    relatedModelObjectId: { 
+      type: DataTypes.UUID, 
+      allowNull: true 
+    },
+    modelId: { 
+      type: DataTypes.UUID,
+      allowNull: true, 
+      references: {
+        model: 'Models', 
+        key: 'model_id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
     }
   }, {
     modelName: 'FlowHistory',
@@ -51,6 +65,9 @@ module.exports = (sequelize, DataTypes) => {
 
     // Association with FlowHistoryData
     FlowHistory.hasMany(models.FlowHistoryData, { foreignKey: 'flowHistoryId', as: 'flowHistoryData' });
+
+    // Association with ModelItem
+    FlowHistory.belongsTo(models.ModelItem, { foreignKey: 'modelId', as: 'model' });
   };
 
   return FlowHistory;

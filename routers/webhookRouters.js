@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu, processUserResponse } = require('./handlersFlows/menuMainHandler'); 
+const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
 const { User, FlowHistory, Step, Flow } = require('../models'); // Asegúrate de ajustar las rutas según tu estructura
 require('dotenv').config(); // Cargar variables de entorno
 
@@ -27,6 +27,23 @@ const verifyApiKey = (req, res, next) => {
 // Aplicar el middleware de verificación de API key
 router.use(verifyApiKey);
 
+// Veficar si el si el usuario tiene flujo activo 
+const getActivesFlowToUser = async (user) => {
+    // Verificar si el usuario tiene un flujo activo
+    const activeFlow = await FlowHistory.findOne({
+        where: {
+            createdById: user.user_id,
+            isCompleted: false
+        },
+        include: [{
+            model: Flow,
+            as: 'flow' 
+        }]
+    });
+
+    return activeFlow;
+}
+
 // POST Route para manejar mensajes entrantes
 router.post('/', asyncHandler(async (req, res) => {
     const payload = req.body;
@@ -41,7 +58,7 @@ router.post('/', asyncHandler(async (req, res) => {
     for (const message of payload.messages) {
         try {
             // **Nueva Verificación: Ignorar mensajes enviados por el bot**
-            if (message.from_me === 'true') {
+            if (message.from_me) {
                 console.log('Mensaje enviado por el bot, ignorando.');
                 continue; // Saltar al siguiente mensaje
             }
@@ -73,34 +90,38 @@ router.post('/', asyncHandler(async (req, res) => {
             }
 
             // Verificar si el usuario tiene un flujo activo
-            const activeFlow = await FlowHistory.findOne({
-                where: {
-                    createdById: user.user_id,
-                    isCompleted: false
-                },
-                include: [{
-                    model: Flow,
-                    as: 'flow' // Especifica el alias definido en la asociación
-                }]
-            });
+            const activeFlow = await getActivesFlowToUser(user);
+            
+            console.log(user,"--------------------------------------------", activeFlow);
 
+
+            //await processUserResponse(user, activeFlow, message);
             if (activeFlow) {
                 // El usuario está respondiendo a un flujo activo
                 await processUserResponse(user, activeFlow, message);
             } else {
-                // El usuario está iniciando un nuevo flujo
-                const { user: foundUser, endList } = await messageFlowsMenu(fromNumber);
+                let messageEnd = '';
+                // Validar si el usario esta seleccionando una opcion del menú principal
+                let { messageIsSelection }  = await getSelectionMainMenu(message, user);
 
-                if (foundUser) {
-                    console.log(`Usuario encontrado: ${foundUser.name} (Teléfono: ${foundUser.phone_number})`);
+                if(!messageIsSelection) {
+                    // El usuario está iniciando un nuevo flujo
+                    console.log("entro al menu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+                    messageEnd = await messageFlowsMenu(fromNumber);
+                } else {
+                    return;
+                }
+
+                if (user) {
+                    console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
 
                     // Preparar el 'to' con el prefijo '57'
-                    const toNumber = `57${foundUser.phone_number}@s.whatsapp.net`;
+                    const toNumber = `57${user.phone_number}@s.whatsapp.net`;
 
                     // Preparar el payload para la API de WhatsApp
                     const whatsappPayload = {
                         to: toNumber,
-                        body: endList,
+                        body: messageEnd,
                         // Otros campos según tu necesidad
                     };
 
