@@ -23,6 +23,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL'
+    },
+    requiredFields: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true
+    },
+    idName: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    idNameModel: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     modelName: 'ModelItem',

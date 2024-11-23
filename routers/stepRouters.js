@@ -72,10 +72,11 @@ router.post('/create',
         body('flowId').isUUID().withMessage('Valid Flow ID is required'),
         body('modelId').isUUID().withMessage('Valid Model ID is required'),
         body('createdById').isUUID().withMessage('Valid User ID is required'),
-        body('modelNameColumn').isString().withMessage('Valid model name column ID is required')
+        body('modelNameColumn').isString().withMessage('Valid model name column ID is required'),
+        body('dataType').isString().withMessage('Valid model dataType column is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { message, order, flowId, modelId, createdById, modelNameColumn } = req.body;
+        const { message, order, flowId, modelId, createdById, modelNameColumn, dataType } = req.body;
 
         // Check if the flow exists
         const flow = await Flow.findByPk(flowId);
@@ -112,14 +113,15 @@ router.post('/create',
             flowId,
             modelId,
             createdById,
-            modelNameColumn
+            modelNameColumn,
+            dataType
         });
 
         res.status(201).json(newStep);
     })
 );
 
-// PUT /steps/:id - Update an existing step
+// PUT /steps/:id - Update an existing step 
 router.put('/:id',
     validate([
         param('id').isUUID().withMessage('Step ID is invalid'),
@@ -128,11 +130,12 @@ router.put('/:id',
         body('flowId').optional().isUUID().withMessage('Valid Flow ID is required'),
         body('modelId').optional().isUUID().withMessage('Valid Model ID is required'),
         body('createdById').optional().isUUID().withMessage('Valid User ID is required'),
-        body('modelNameColumn').isString().withMessage('Valid model name column ID is required')
+        body('modelNameColumn').optional().isString().withMessage('Valid model name column ID is required'),
+        body('dataType').optional().isString().withMessage('Valid model dataType column is required')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { message, order, flowId, modelId, createdById, modelNameColumn } = req.body;
+        const { message, order, flowId, modelId, createdById, modelNameColumn, dataType } = req.body;
 
         const step = await Step.findByPk(id);
         if (!step) {
@@ -175,7 +178,8 @@ router.put('/:id',
             step.order = order;
         }
 
-        // Update other fields
+        // Update other fields 
+        step.dataType = dataType !== undefined ? dataType : step.dataType;
         step.message = message !== undefined ? message : step.message;
         step.modelNameColumn = modelNameColumn !== undefined ? modelNameColumn : step.modelNameColumn;
         

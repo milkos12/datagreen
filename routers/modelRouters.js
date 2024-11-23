@@ -54,14 +54,17 @@ router.get('/:id',
     })
 );
 
-// POST /models/create - Create a new model
+// POST /models/create - Create a new model idNameModel
 router.post('/create',
     validate([
         body('name').notEmpty().withMessage('Name is required'),
-        body('createdById').isUUID().withMessage('Valid User ID is required')
+        body('createdById').isUUID().withMessage('Valid User ID is required'),
+        body('requiredFields').notEmpty().withMessage('requiredFields is required'),
+        body('idName').notEmpty().withMessage('idName is required'),
+        body('idNameModel').notEmpty().withMessage('idNameModel is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { name, createdById } = req.body;
+        const { name, createdById, requiredFields, idName, idNameModel } = req.body;
 
         // Check if the user exists
         const user = await User.findByPk(createdById);
@@ -72,23 +75,29 @@ router.post('/create',
         // Create the model
         const newModel = await ModelItem.create({
             name,
-            createdById
+            createdById,
+            requiredFields,
+            idName,
+            idNameModel
         });
 
         res.status(201).json(newModel);
     })
 );
 
-// PUT /models/:id - Update an existing model
+// PUT /models/:id - Update an existing model  idNameModel
 router.put('/:id',
     validate([
         param('id').isUUID().withMessage('Model ID is invalid'),
         body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-        body('createdById').optional().isUUID().withMessage('Valid User ID is required')
+        body('createdById').optional().isUUID().withMessage('Valid User ID is required'),
+        body('requiredFields').optional().isArray().withMessage('Valid requiredFields is required'),
+        body('idName').optional().isString().withMessage('Valid idName is format'),
+        body('idNameModel').optional().isString().withMessage('Valid idName is format')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { name, createdById } = req.body;
+        const { name, createdById, requiredFields, idName, idNameModel } = req.body;
 
         const model = await ModelItem.findByPk(id);
         if (!model) {
@@ -104,8 +113,11 @@ router.put('/:id',
             model.createdById = createdById;
         }
 
-        // Update other fields
+        // Update other fields idName 
         model.name = name !== undefined ? name : model.name;
+        model.requiredFields = requiredFields !== undefined ? requiredFields : model.requiredFields;
+        model.idName = idName !== undefined ? idName : model.idName;
+        model.idNameModel = idNameModel !== undefined ? idNameModel : model.idNameModel;
 
         await model.save();
 

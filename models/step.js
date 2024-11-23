@@ -51,6 +51,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL'
+    },
+    dataType: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     modelName: 'Step',

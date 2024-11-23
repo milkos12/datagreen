@@ -4,15 +4,13 @@
     Si no hay un flujo activo y el mensaje es un numero comprobar que el número corresponda a
     un fujo listado en el menú
 
-    comprobar que no haya ningun flujo activ DONE
-    comprobar que el mensaje sea un número
-    comprobar que el  númeroenviado corresponda a una de las opciones del menu
-    activar un nuevo flujo para el usuario donde le envie los mensajes del flujo correspondiente
 
+    1. cuando se active el flujo nuevo se debe crear un registro nuevo en el modelo asociado
+    2. seguarda el id de nuvo registrado en el modelo asosciado 
 
 */
 
-const { Company, Flow, User, FlowHistory, Step, FlowHistoryData } = require('../../models');
+const { Company, Flow, User, FlowHistory, Step, FlowHistoryData, ModelItem, Sequelize, sequelize } = require('../../models');
 const axios = require('axios');
 
 const getFlowsListOfUsers = async (user) => {
@@ -23,7 +21,7 @@ const getFlowsListOfUsers = async (user) => {
         },
         include: [{
             model: Step,
-            as: 'steps' // Especifica el alias definido en la asociación
+            as: 'steps'
         }]
     });
 
@@ -31,29 +29,50 @@ const getFlowsListOfUsers = async (user) => {
     return flows;
 }
 
+const createNewRegister = async (user, flowSelected) => {
+    const steps = flowSelected.steps;
+
+    const model = await ModelItem.findByPk(steps[0].modelId);
+
+    const objetToCreate = {};
+
+    model.requiredFields.forEach(filed => {
+        objetToCreate[filed] = user[filed];
+    });
+    //user create
+    objetToCreate[model.idName] = user.user_id;
+
+    const Model = sequelize.models[model.name];
+
+    const newObect = await Model.create(objetToCreate);
+    
+    return newObect[model.idNameModel];
+}
+
 // Función para obtener la selección de una opcion del menú principal
 const getSelectionMainMenu = async (message, user) => {
     const REGEX = /(\d)+/g;
-    const textOfMessage =  message.text.body.trim();
+    const textOfMessage = message.text.body.trim();
     let match = textOfMessage.match(REGEX);
 
-    if(match) {
+    if (match) {
         const selection = Number.parseInt(match[0]);
         const flows = await getFlowsListOfUsers(user);
         const flowSelected = flows[selection - 1];
+        const idNewObject = await createNewRegister(user, flowSelected);
 
         await FlowHistory.create({
             flowId: flowSelected.flow_id,
             createdById: user.user_id,
             currentStep: 1,
-            isCompleted: false
+            isCompleted: false,
+            relatedModelObjectId: idNewObject
+
         });
 
         // Obtener los pasos del flujo
         const steps = flowSelected.steps.sort((a, b) => a.order - b.order);
-        console.log('este es elflow--------------------::: ', flowSelected);
 
-        console.log('este es STEPS--------------------::: ', steps);
         await sendStepMessage(user, steps[0]);
         match = true;
 
@@ -103,10 +122,10 @@ const messageFlowsMenu = async (fromNumber) => {
 // Función para procesar la respuesta del usuario en un flujo activo
 const processUserResponse = async (user, activeFlow, message) => {
     const userResponse = message.text.body.trim();
-    
+
     // Obtener el flujo activo
     const flowHistory = activeFlow;
-   
+
     const selectedFlow = await Flow.findOne({
         where: { flow_id: flowHistory.flowId },
         include: [{
@@ -114,13 +133,13 @@ const processUserResponse = async (user, activeFlow, message) => {
             as: 'steps' // Especifica el alias definido en la asociación
         }]
     });
-    
+    /*
     if (!selectedFlow) {
         console.log(`No se encontró el flujo con ID: ${flowHistory.flowId}`);
         await sendInvalidOptionMessage(user);
         return;
-    }
-    
+    }*/
+
     // Obtener los pasos del flujo
     const steps = selectedFlow.steps.sort((a, b) => a.order - b.order);
 
@@ -141,7 +160,7 @@ const processUserResponse = async (user, activeFlow, message) => {
     // Validar la respuesta del usuario para el paso actual
     // Aquí puedes implementar validaciones específicas según el step.modelId o el contenido esperado
     // Por simplicidad, asumiremos que cualquier respuesta es válida
-    console.log(currentStepIndex,"ñññññññññññññññññññññññ   ", currentStep)
+    console.log(currentStepIndex, "ñññññññññññññññññññññññ   ", currentStep)
     /*------------------------- tengo que agregar algo para que sepa cuando es un codigo del menu y cuando si es un dato----------------------------
     // Guardar la respuesta en FlowHistoryData
     /*await FlowHistoryData.create({
@@ -154,6 +173,13 @@ const processUserResponse = async (user, activeFlow, message) => {
     // Avanzar al siguiente paso
     flowHistory.currentStep += 1;
     await flowHistory.save();*/
+
+    //QUE VAOR NECESITA EL STEP
+    //VALIDAR EL TIPO DE DATO QUE NECESTITA EL STEP
+    //SI ES CORRECTO GUARLO 
+    //MANDARLO Y AUMENTAR EL PASO VALIDAR SI HAY MAS PASO 
+    //SI, SI MANDAR EL OTRO STEP Y MENSAJE AFIERMATIVO
+    //SI NO MANDAR QUE ESTA MAL Y ABORTAR TODO EL PROCESO
 
     // Enviar el siguiente paso si existe
     if (flowHistory.currentStep < steps.length) {
