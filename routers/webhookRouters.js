@@ -98,6 +98,7 @@ router.post('/', asyncHandler(async (req, res) => {
             //await processUserResponse(user, activeFlow, message);
             if (activeFlow) {
                 // El usuario está respondiendo a un flujo activo
+                console.log("¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¡¡¡");
                 await processUserResponse(user, activeFlow, message);
             } else {
                 let messageEnd = '';

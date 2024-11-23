@@ -155,7 +155,7 @@ const processUserResponse = async (user, activeFlow, message) => {
         return;
     }
 
-    const currentStep = steps[currentStepIndex];
+    const currentStep = steps[currentStepIndex - 1];
 
     // Validar la respuesta del usuario para el paso actual
     // Aquí puedes implementar validaciones específicas según el step.modelId o el contenido esperado
@@ -180,9 +180,22 @@ const processUserResponse = async (user, activeFlow, message) => {
     //MANDARLO Y AUMENTAR EL PASO VALIDAR SI HAY MAS PASO 
     //SI, SI MANDAR EL OTRO STEP Y MENSAJE AFIERMATIVO
     //SI NO MANDAR QUE ESTA MAL Y ABORTAR TODO EL PROCESO
-
+    console.log(flowHistory.currentStep, "------------|----------", steps.length);
+    // Save data
+    if(flowHistory.currentStep <= steps.length) {
+        const modelRelatedId = await ModelItem.findByPk(currentStep.modelId);
+        console.log("---------***----------  ", currentStep);
+        const Model = await sequelize.models[modelRelatedId.name];
+        const modelToEdit = await Model.findByPk(activeFlow.relatedModelObjectId);
+        console.log("---------***----------  ", Model);
+        console.log(activeFlow,"---------***----------  ", modelToEdit);
+        modelToEdit[currentStep.modelNameColumn] = message.text.body;
+        await modelToEdit.save();
+    }
+    
     // Enviar el siguiente paso si existe
     if (flowHistory.currentStep < steps.length) {
+        console.log("#################################### cuando esta recibiendo datos ")
         const nextStep = steps[flowHistory.currentStep];
         await sendStepMessage(user, nextStep);
     } else {
