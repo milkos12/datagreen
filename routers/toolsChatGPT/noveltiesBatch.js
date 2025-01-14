@@ -4,7 +4,7 @@ function noveltiesBatch() {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Guarda las novedades del lote. Este lote debe tener **exactamente 300 tallos**.
+                description: `Guarda las novedades del lote.  codigo lote WE23EW3 **exactamente 300 tallos**.
 Si el número total es diferente:
 - Siempre que hayan datos registrados ve dándole el resumen en formato lista
 - **Informa al usuario** y pide corrección.
