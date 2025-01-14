@@ -124,7 +124,7 @@ async function getChatResponse(user, message) {
       feedbackFromOpenAi = `*Detalles de la novedad:*\n\n
 ${convertirAListaTexto(content)}\n\n
        ✅¡Registro exitoso!✅ \n\n
-🛑*Ya no podrás modificarlo.*🛑 
+🛑**Ya no podrás modificarlo.**🛑 
 Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
       await deleteThread(user);
     }
