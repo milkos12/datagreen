@@ -8,12 +8,13 @@ function noveltiesBatch() {
 Si el número total es diferente:
 - **Informa al usuario** y pide corrección.
 - **Indica el excedente o faltante** claramente.
-- usa listas siempre que sea posible. y emojies es un programa de plantas,
 No permitas continuar si no se cumple el requisito. 
-Cuando se cumpla, confirma con el usuario y envía un mensaje claro de éxito, usando:
+Cuando se cumpla, confirmar primero con el usuario expresamente antes de marcar exit, usando:
 - **Emojis** para ser amigable.
 - **Listas** para clasificaciones y cantidades, como tabla.
-Mantén mensajes cortos (máximo 10 palabras por oración).`,
+Mantén mensajes cortos (máximo 10 palabras por oración).
+Usa listas cuando hables de cantidades y clasificaciones
+`,
                 parameters: {
                     type: "object",
                     properties: {
