@@ -69,7 +69,7 @@ function processOpenAIResponse(response, user) {
   let exit = false;
   let content = {};
 
-
+  console.log('---------------ppppppppppppppp-', response);
 
   try {
     console.log('---------------ñasdf-', JSON.parse(response.arguments));
