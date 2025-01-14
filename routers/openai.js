@@ -79,7 +79,7 @@ function processOpenAIResponse(response, user) {
       content = objectFromOpenAi.conten;
     
   } catch (e) {
-
+    console.log('1 ............. ', e);
   }
 
   try {
@@ -89,7 +89,7 @@ function processOpenAIResponse(response, user) {
     exit = objectFromOpenAi.exit;
     content = objectFromOpenAi.conten;
   } catch (e) {
-
+    console.log('2 ............. ', e);
   }
 
   try {
@@ -98,7 +98,7 @@ function processOpenAIResponse(response, user) {
     }
     feedbackFromOpenAi = response.content;
   } catch (e) {
-
+    console.log('3 ............. ', e);
   }
   
   return { feedbackFromOpenAi, exit, content };
