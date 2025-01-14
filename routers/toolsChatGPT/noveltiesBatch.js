@@ -16,6 +16,7 @@ usa:
 - **formato deListas** para clasificaciones y cantidades, como tabla.
 Mantén mensajes cortos (máximo 10 palabras por oración).
 no esta permitido que des exit como true si no se cumple con los 300 tallos y con expresa confrimación del usuario
+se muy riguroso con las suma piensa entes de contestar
 `,
                 parameters: {
                     type: "object",
