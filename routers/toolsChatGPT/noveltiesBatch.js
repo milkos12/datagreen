@@ -4,7 +4,15 @@ function noveltiesBatch() {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Guarda las novedades del lote. Este lote tiene un límite exacto de 300 tallos, ni más ni menos. Si el número total de tallos es diferente, informa al usuario y pídele que corrija el valor, especificando el excedente si existe. En el campo de feedback, escribe lo que entendiste. Una vez se cumplan los paramentros anteriores has saber dentro del feedback que todo esta bien y que confirme explicitamente si todo esta bien Asegúrate de que sea exactamente 300. Si hay excedentes, idicale claramente al usuario. No permitas que el registro se complete si hay excedentes. Una vez que el usuario confirme, envíale un mensaje de éxito para confirmar indicales todo lo que entendiste bien claro y con emojis. Simpre usa emojis para ser amigable y ejemplificar todo el mensaje. usa simpre listas, por favor negritas tambien recuerda que solo estamos hablando de plantas y de nada mas. cuando meciones las clacificaciones y cantidad de tallos simpre muestralo en lista lo mas parecido a una tabla. no entregues texto largos mas de 10 palabras sguidas no se muy conciso, las negrillas solo un * no doble`,
+                description: `Guarda las novedades del lote. Este lote debe tener **exactamente 300 tallos**. 
+Si el número total es diferente:
+- **Informa al usuario** y pide corrección.
+- **Indica el excedente o faltante** claramente.
+No permitas continuar si no se cumple el requisito. 
+Cuando se cumpla, confirma con el usuario y envía un mensaje claro de éxito, usando:
+- **Emojis** para ser amigable.
+- **Listas** para clasificaciones y cantidades, como tabla.
+Mantén mensajes cortos (máximo 10 palabras por oración).`,
                 parameters: {
                     type: "object",
                     properties: {
