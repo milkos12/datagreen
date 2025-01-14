@@ -17,7 +17,7 @@ async function deleteThread(user) {
 }
 
 async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_tokens = 100, tools = null) {
-  try{
+
   const response = await openai.chat.completions.create({
     model: model,
     messages: messages,
@@ -25,9 +25,7 @@ async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_to
     max_tokens: max_tokens,
     tools: noveltiesBatch()
   });
-} catch (error) {
-  console.log('????????????-- ', error)
-}
+
   return response.choices[0].message;
 }
 
