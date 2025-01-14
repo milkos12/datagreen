@@ -13,21 +13,21 @@ async function deleteThread(user) {
   if (threadMessages) {
     await threadMessages.destroy();
   }
-  
+
 }
 
 async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_tokens = 100, tools = null) {
-  try{
-  const response = await openai.chat.completions.create({
-    model: model,
-    messages: messages,
-    temperature: 0.7,
-    max_tokens: max_tokens,
-    tools: noveltiesBatch()
-  });
-} catch (error) {
-  console.log('????????????-- ', error);
-}
+  try {
+    const response = await openai.chat.completions.create({
+      model: model,
+      messages: messages,
+      temperature: 0.7,
+      max_tokens: max_tokens,
+      tools: noveltiesBatch()
+    });
+  } catch (error) {
+    console.log('????????????-- ', error);
+  }
   return response.choices[0].message;
 }
 
@@ -43,11 +43,12 @@ async function createNewTreadMessages(user, message) {
 
 async function addNewMessage(role, message, user) {
   try {
-    
+
     if (message === null) {
       message = 'No se ha recibido mensaje';
     }
-    
+    let messageContent = message || "No respondió";
+    let message = [{ role: "user", content: messageContent }];
     message = [{ role, content: message }];
     const threadMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
 
@@ -78,11 +79,11 @@ function processOpenAIResponse(response, user) {
 
   try {
     console.log('---------------ñasdf-', JSON.parse(response.arguments));
-      objectFromOpenAi = JSON.parse(response.arguments);
-      feedbackFromOpenAi = objectFromOpenAi.feedback;
-      exit = objectFromOpenAi.exit;
-      content = objectFromOpenAi.conten;
-    
+    objectFromOpenAi = JSON.parse(response.arguments);
+    feedbackFromOpenAi = objectFromOpenAi.feedback;
+    exit = objectFromOpenAi.exit;
+    content = objectFromOpenAi.conten;
+
   } catch (e) {
     console.log('1 ............. ', e);
   }
@@ -98,14 +99,14 @@ function processOpenAIResponse(response, user) {
   }
 
   try {
-    if (response.content === null ) {
+    if (response.content === null) {
       throw new Error('arguments es null');
     }
     feedbackFromOpenAi = response.content;
   } catch (e) {
     console.log('3 ............. ', e);
   }
-  
+
   return { feedbackFromOpenAi, exit, content };
 
 }
@@ -119,8 +120,8 @@ async function getChatResponse(user, message) {
     const finalResponse = await getCompletion(messages.messages, "gpt-4o", 0, 300);
     console.log('************************', finalResponse)
     let { feedbackFromOpenAi, exit, content } = processOpenAIResponse(finalResponse, user);
-    console.log(exit,'############################## ', feedbackFromOpenAi)
-    
+    console.log(exit, '############################## ', feedbackFromOpenAi)
+
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
     if (exit) {
