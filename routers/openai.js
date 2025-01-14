@@ -131,7 +131,7 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
     return feedbackFromOpenAi;
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
-
+    return '⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.';
   }
 }
 
