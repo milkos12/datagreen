@@ -6,6 +6,7 @@ function noveltiesBatch() {
                 name: "set_novelties",
                 description: `Guarda las novedades del lote. Este lote debe tener **exactamente 300 tallos**. 
 Si el número total es diferente:
+- Simpre que hayan datos registrados ve dandole el resumen
 - **Informa al usuario** y pide corrección.
 - **Indica el excedente o faltante** claramente.
 No permitas continuar si no se cumple el requisito. 

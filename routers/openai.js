@@ -20,7 +20,7 @@ async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_to
   const response = await openai.chat.completions.create({
     model: model,
     messages: messages,
-    temperature: 0.5,
+    temperature: 0.7,
     max_tokens: max_tokens,
     tools: noveltiesBatch()
   });
