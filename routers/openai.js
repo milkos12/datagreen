@@ -47,7 +47,7 @@ async function addNewMessage(role, message, user) {
     if (message === null) {
       message = 'No se ha recibido mensaje';
     }
-    let messageContent = message || "No respondió";
+    message = message || "No respondió";
     let message = [{ role: "user", content: messageContent }];
     message = [{ role, content: message }];
     const threadMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
