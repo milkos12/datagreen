@@ -114,7 +114,7 @@ async function getChatResponse(user, message) {
     const finalResponse = await getCompletion(messages.messages, "gpt-4o", 0, 300);
     console.log('************************', finalResponse)
     let { feedbackFromOpenAi, exit, content } = processOpenAIResponse(finalResponse, user);
-    console.log(exit,'#############',content,'################# ', feedbackFromOpenAi)
+    console.log(exit,'############################## ', feedbackFromOpenAi)
     
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
