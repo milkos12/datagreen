@@ -6,7 +6,7 @@ function noveltiesBatch() {
                 name: "set_novelties",
                 description: `Registra novedad del lote:
 La suma de los tallos debe ser exactamente 300.
-Para dar exit, debes confirmar los tallos exactos es obligatorio y datos.
+Para dar exit, debes confirmar la cantidad de tallos debe ser exacto 300 es obligatorio y datos.
 Para confirmar, muestrale el detalle en formato lista .
 Si ya ha registrado antes, siempre muestra el detalle en forma lista(esto es obligatorio que lo hagas para que el usuario entienda)
 
