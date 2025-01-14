@@ -5,7 +5,7 @@ const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatch');
 
 function convertirAListaTexto(detialBatch) {
   console.log('🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉', detialBatch)
-  return detialBatch.map(item => `- ${item.clasification}: ${item.amout_stems}`).join('\n\n');
+  return detialBatch.map(item => `- ${item.clasification}: ${item.amout_stems}`).join('\n');
 }
 
 async function deleteThread(user) {
