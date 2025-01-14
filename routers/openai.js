@@ -5,7 +5,7 @@ const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatch');
 
 function convertirAListaTexto(detialBatch) {
   try {
-    return detialBatch.map(item => `- ${item.clasification}: ${item.amout_stems}`).join('\n');
+    return detialBatch.map(item => `- 🌿 ${item.clasification}: ${item.amout_stems}`).join('\n');
   } catch (error) {
     throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
@@ -121,10 +121,10 @@ async function getChatResponse(user, message) {
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
     if (exit) {
-      feedbackFromOpenAi = `*Detalles de la novedad:*\n\n
+      feedbackFromOpenAi = `*Detalles de la novedad:*\n
 ${convertirAListaTexto(content)}\n\n
        ✅¡Registro exitoso!✅ \n\n
-🛑**Ya no podrás modificarlo.**🛑 
+*🛑⚠️ Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
       await deleteThread(user);
     }
