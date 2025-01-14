@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       // Associations with FlowHistory and FlowHistoryData
       User.hasMany(models.FlowHistory, { foreignKey: 'createdById', as: 'flowHistories' });
       User.hasMany(models.FlowHistoryData, { foreignKey: 'createdById', as: 'flowHistoryData' });
+      User.hasMany(models.FlowHistoryData, { foreignKey: 'createdById', as: 'messagePersistence' });
     };
   
     return User;

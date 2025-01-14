@@ -4,7 +4,8 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
-const { User, FlowHistory, Step, Flow } = require('../models'); // Asegúrate de ajustar las rutas según tu estructura
+const { User, FlowHistory, Step, Flow } = require('../models');
+const { getChatResponse } = require('./openai');
 require('dotenv').config(); // Cargar variables de entorno
 
 // Middleware para manejar errores asíncronos
@@ -47,6 +48,7 @@ const getActivesFlowToUser = async (user) => {
 // POST Route para manejar mensajes entrantes
 router.post('/', asyncHandler(async (req, res) => {
     const payload = req.body;
+    let feedback = '';
 
     // Validar la estructura del payload
     if (!payload || !Array.isArray(payload.messages)) {
@@ -83,64 +85,38 @@ router.post('/', asyncHandler(async (req, res) => {
 
             // Obtener el usuario y verificar si está en un flujo activo
             const user = await User.findOne({ where: { phone_number: fromNumber } });
-
             if (!user) {
                 console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
                 continue;
             }
 
-            // Verificar si el usuario tiene un flujo activo
-            const activeFlow = await getActivesFlowToUser(user);
-            
-            console.log(user,"--------------------------------------------", activeFlow);
+            feedback = await getChatResponse(user, message.text.body);
 
+            if (user) {
+                console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
 
-            //await processUserResponse(user, activeFlow, message);
-            if (activeFlow) {
-                // El usuario está respondiendo a un flujo activo
-                console.log("¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¡¡¡");
-                await processUserResponse(user, activeFlow, message);
-            } else {
-                let messageEnd = '';
-                // Validar si el usario esta seleccionando una opcion del menú principal
-                let { messageIsSelection }  = await getSelectionMainMenu(message, user);
+                // Preparar el 'to' con el prefijo '57'
+                const toNumber = `57${user.phone_number}@s.whatsapp.net`;
 
-                if(!messageIsSelection) {
-                    // El usuario está iniciando un nuevo flujo
-                    console.log("entro al menu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-                    messageEnd = await messageFlowsMenu(fromNumber);
-                } else {
-                    return;
-                }
+                // Preparar el payload para la API de WhatsApp
+                const whatsappPayload = {
+                    to: toNumber,
+                    body: feedback,
+                    // Otros campos según tu necesidad
+                };
 
-                if (user) {
-                    console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
+                // Enviar el mensaje a WhatsApp
+                try {
+                    const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
+                        headers: {
+                            'Authorization': process.env.WHATSAPP_API_TOKEN,
+                            'Content-Type': 'application/json'
+                        }
+                    });
 
-                    // Preparar el 'to' con el prefijo '57'
-                    const toNumber = `57${user.phone_number}@s.whatsapp.net`;
-
-                    // Preparar el payload para la API de WhatsApp
-                    const whatsappPayload = {
-                        to: toNumber,
-                        body: messageEnd,
-                        // Otros campos según tu necesidad
-                    };
-
-                    // Enviar el mensaje a WhatsApp
-                    try {
-                        const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
-                            headers: {
-                                'Authorization': process.env.WHATSAPP_API_TOKEN,
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
-                    } catch (apiError) {
-                        console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
-                    }
-                } else {
-                    console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
+                    console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
+                } catch (apiError) {
+                    console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
                 }
             }
 
@@ -149,7 +125,7 @@ router.post('/', asyncHandler(async (req, res) => {
         }
     }
 
-    res.status(200).send('Evento recibido');
+    res.status(200).send(`${feedback}`);
 }));
 
 module.exports = router;
