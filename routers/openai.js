@@ -96,10 +96,16 @@ async function getChatResponse(user, message) {
     console.log('+++++++++++++++++++++++++++++++++++++++++++++----++++ ', messages.messages);
     const finalResponse = await getCompletion(messages.messages, "gpt-4o", 0, 300);
     console.log('************************', finalResponse)
-    const { feedbackFromOpenAi, exit } = processOpenAIResponse(finalResponse, user);
+    let { feedbackFromOpenAi, exit } = processOpenAIResponse(finalResponse, user);
     console.log(exit,'############################## ', feedbackFromOpenAi)
     
     await addNewMessage('assistant', feedbackFromOpenAi, user);
+
+    if (exit) {
+      feedbackFromOpenAi = `🎉 ¡Registro exitoso! 🎉
+🚨 *Ya no podrás modificarlo.* 
+Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
+    }
     return feedbackFromOpenAi;
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
