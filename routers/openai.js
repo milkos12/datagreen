@@ -3,7 +3,20 @@ const { MessagePersistence, User } = require('../models');
 const { messageFlowsMenu } = require('./handlersFlows/menuMainHandler');
 const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatch');
 
-async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_tokens = 250, tools = null) {
+function convertirAListaTexto(detialBatch) {
+  console.log('🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉', detialBatch)
+  return detialBatch.map(item => `🔹 ${item.clasification}: ${item.amout_stems}`).join('\n\n');
+}
+
+async function deleteThread(user) {
+  const threadMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
+  if (threadMessages) {
+    await threadMessages.destroy();
+  }
+  
+}
+
+async function getCompletion(messages, model = "gpt-4o", temperature = 0, max_tokens = 100, tools = null) {
   const response = await openai.chat.completions.create({
     model: model,
     messages: messages,
@@ -54,23 +67,27 @@ function processOpenAIResponse(response, user) {
   let feedbackFromOpenAi = 'No se optuvo respuesta';
   let objectFromOpenAi = {};
   let exit = false;
+  let content = {};
 
 
 
   try {
+    console.log('---------------ñasdf-', JSON.parse(response.arguments));
       objectFromOpenAi = JSON.parse(response.arguments);
       feedbackFromOpenAi = objectFromOpenAi.feedback;
       exit = objectFromOpenAi.exit;
+      content = objectFromOpenAi.conten;
     
   } catch (e) {
 
   }
 
   try {
-    console.log("}}}}}}}}}}}}}}}}}}}}}}} ----", JSON.parse(response.tool_calls[0].function.arguments))
+    console.log("}}}}}}}}}}}}oooo}}}}}}}}}}} ----", JSON.parse(response.tool_calls[0].function.arguments))
     objectFromOpenAi = JSON.parse(response.tool_calls[0].function.arguments);
     feedbackFromOpenAi = objectFromOpenAi.feedback;
     exit = objectFromOpenAi.exit;
+    content = objectFromOpenAi.conten;
   } catch (e) {
 
   }
@@ -83,8 +100,8 @@ function processOpenAIResponse(response, user) {
   } catch (e) {
 
   }
-
-  return { feedbackFromOpenAi, exit };
+  
+  return { feedbackFromOpenAi, exit, content };
 
 }
 
@@ -96,15 +113,20 @@ async function getChatResponse(user, message) {
     console.log('+++++++++++++++++++++++++++++++++++++++++++++----++++ ', messages.messages);
     const finalResponse = await getCompletion(messages.messages, "gpt-4o", 0, 300);
     console.log('************************', finalResponse)
-    let { feedbackFromOpenAi, exit } = processOpenAIResponse(finalResponse, user);
-    console.log(exit,'############################## ', feedbackFromOpenAi)
+    let { feedbackFromOpenAi, exit, content } = processOpenAIResponse(finalResponse, user);
+    console.log(exit,'#############',content,'################# ', feedbackFromOpenAi)
     
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
     if (exit) {
-      feedbackFromOpenAi = `🎉 ¡Registro exitoso! 🎉
+
+      feedbackFromOpenAi = `*Detalles de la novedad:*\n\n
+${convertirAListaTexto(content)}\n\n
+      🎉 ¡Registro exitoso! 🎉
 🚨 *Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
+      await deleteThread(user);
+
     }
     return feedbackFromOpenAi;
   } catch (error) {
