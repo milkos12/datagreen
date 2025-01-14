@@ -4,17 +4,17 @@ function noveltiesBatch() {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Guarda las novedades del lote. Este lote debe tener **exactamente 300 tallos**. 
+                description: `Guarda las novedades del lote. Este lote debe tener **exactamente 300 tallos**.
 Si el número total es diferente:
-- Simpre que hayan datos registrados ve dandole el resumen
+- Siempre que hayan datos registrados ve dándole el resumen en formato lista
 - **Informa al usuario** y pide corrección.
 - **Indica el excedente o faltante** claramente.
-No permitas continuar si no se cumple el requisito. 
-Cuando se cumpla, confirmar primero con el usuario expresamente antes de marcar exit, usando:
+No permitas continuar si no se cumple el requisito.
+Cuando se cumpla, confirmar primero con el usuario expresamente antes de marcar exit.
+usa:
 - **Emojis** para ser amigable.
-- **Listas** para clasificaciones y cantidades, como tabla.
+- **formato deListas** para clasificaciones y cantidades, como tabla.
 Mantén mensajes cortos (máximo 10 palabras por oración).
-Usa listas cuando hables de cantidades y clasificaciones
 no esta permitido que des exit como true si no se cumple con los 300 tallos y con expresa confrimación del usuario
 `,
                 parameters: {
