@@ -15,6 +15,10 @@ const flowHistorieRouters = require('./routers/flowHistorieRouters');
 const flowHistoryDataRouters = require('./routers/flowHistoryDataRouters');
 const messagePersistenceRouter = require('./routers/messagePersistenceRouter');
 const contentBatchRoutes = require('./routers/contentBatchRoutes');
+const activityRouters = require('./routers/activityRouters');
+const contentActivities = require('./routers/contentActivityRoutes');
+const permittedProcessesRoutes = require('./routers/permittedProcessesRoutes');
+const rolesRoutes = require('./routers/rolesRoutes');
 const app  = express();
 const errorHandler = require('./middlewares/errorHandler'); 
 
@@ -40,6 +44,11 @@ app.use('/v1/flowHistories', flowHistorieRouters);
 app.use('/v1/flowHistoryData', flowHistoryDataRouters);
 app.use('/v1/messagePersistences', messagePersistenceRouter);
 app.use('/v1/contentBatches', contentBatchRoutes);
+app.use('/v1/activities', activityRouters);
+app.use('/v1/contentActivities', contentActivities);
+app.use('/v1/permittedProcesses', permittedProcessesRoutes);
+app.use('/v1/roles', rolesRoutes);
+
 
 app.use(errorHandler);
 
