@@ -33,19 +33,9 @@ router.get('/', asyncHandler(async (req, res) => {
                 attributes: ['provider_id', 'name']
             },
             {
-                model: Classification,
-                as: 'classification',
-                attributes: ['classification_id', 'name']
-            },
-            {
                 model: Product,
                 as: 'product',
                 attributes: ['product_id', 'name']
-            },
-            {
-                model: Measure,
-                as: 'measure',
-                attributes: ['measure_id', 'name']
             },
             {
                 model: User,
@@ -76,19 +66,9 @@ router.get('/:id',
                     attributes: ['provider_id', 'name']
                 },
                 {
-                    model: Classification,
-                    as: 'classification',
-                    attributes: ['classification_id', 'name']
-                },
-                {
                     model: Product,
                     as: 'product',
                     attributes: ['product_id', 'name']
-                },
-                {
-                    model: Measure,
-                    as: 'measure',
-                    attributes: ['measure_id', 'name']
                 },
                 {
                     model: User,
@@ -114,16 +94,13 @@ router.get('/:id',
 router.post('/create',
     validate([
         body('name').notEmpty().withMessage('Name is required'),
-        body('quantity_of_stems').isDecimal({ min: 0 }).withMessage('Quantity of stems must be a positive number'),
         body('provider_id').isUUID().withMessage('Valid Provider ID is required'),
-        body('classification_id').isUUID().withMessage('Valid Classification ID is required'),
         body('product_id').isUUID().withMessage('Valid Product ID is required'),
-        body('measure_id').isUUID().withMessage('Valid Measure ID is required'),
         body('created_by').isUUID().withMessage('Valid User ID is required'),
         body('company_id').isUUID().withMessage('Valid Company ID is required')
     ]),
     asyncHandler(async (req, res) => {
-        const { name, quantity_of_stems, provider_id, classification_id, product_id, measure_id, created_by, company_id } = req.body;
+        const { name, provider_id, product_id, created_by, company_id } = req.body;
 
         // Verify that the company exists
         const company = await Company.findByPk(company_id);
@@ -143,32 +120,17 @@ router.post('/create',
             return res.status(400).json({ message: 'Provider not found' });
         }
 
-        // Verify that the classification exists
-        const classification = await Classification.findByPk(classification_id);
-        if (!classification) {
-            return res.status(400).json({ message: 'Classification not found' });
-        }
-
         // Verify that the product exists
         const product = await Product.findByPk(product_id);
         if (!product) {
             return res.status(400).json({ message: 'Product not found' });
         }
 
-        // Verify that the measure exists
-        const measure = await Measure.findByPk(measure_id);
-        if (!measure) {
-            return res.status(400).json({ message: 'Measure not found' });
-        }
-
         // Create the batch
         const newBatch = await Batch.create({
             name,
-            quantity_of_stems,
             provider_id,
-            classification_id,
             product_id,
-            measure_id,
             created_by,
             company_id
         });
@@ -181,17 +143,14 @@ router.put('/:id',
     validate([
         param('id').isUUID().withMessage('Batch ID is invalid'),
         body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-        body('quantity_of_stems').optional().isDecimal({ min: 0 }).withMessage('Quantity of stems must be a positive number'),
         body('provider_id').optional().isUUID().withMessage('Valid Provider ID is required'),
-        body('classification_id').optional().isUUID().withMessage('Valid Classification ID is required'),
         body('product_id').optional().isUUID().withMessage('Valid Product ID is required'),
-        body('measure_id').optional().isUUID().withMessage('Valid Measure ID is required'),
         body('created_by').optional().isUUID().withMessage('Valid User ID is required'),
         body('company_id').optional().isUUID().withMessage('Valid Company ID is required')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { name, quantity_of_stems, provider_id, classification_id, product_id, measure_id, created_by, company_id } = req.body;
+        const { name, provider_id, product_id, created_by, company_id } = req.body;
 
         const batch = await Batch.findByPk(id);
         if (!batch) {
@@ -225,15 +184,6 @@ router.put('/:id',
             batch.provider_id = provider_id;
         }
 
-        // If updating the classification, verify it exists
-        if (classification_id) {
-            const classification = await Classification.findByPk(classification_id);
-            if (!classification) {
-                return res.status(400).json({ message: 'Classification not found' });
-            }
-            batch.classification_id = classification_id;
-        }
-
         // If updating the product, verify it exists
         if (product_id) {
             const product = await Product.findByPk(product_id);
@@ -243,18 +193,8 @@ router.put('/:id',
             batch.product_id = product_id;
         }
 
-        // If updating the measure, verify it exists
-        if (measure_id) {
-            const measure = await Measure.findByPk(measure_id);
-            if (!measure) {
-                return res.status(400).json({ message: 'Measure not found' });
-            }
-            batch.measure_id = measure_id;
-        }
-
         // Update other fields
         if (name !== undefined) batch.name = name;
-        if (quantity_of_stems !== undefined) batch.quantity_of_stems = quantity_of_stems;
 
         await batch.save();
 
@@ -301,19 +241,9 @@ router.get('/company/:companyId',
                     attributes: ['provider_id', 'name']
                 },
                 {
-                    model: Classification,
-                    as: 'classification',
-                    attributes: ['classification_id', 'name']
-                },
-                {
                     model: Product,
                     as: 'product',
                     attributes: ['product_id', 'name']
-                },
-                {
-                    model: Measure,
-                    as: 'measure',
-                    attributes: ['measure_id', 'name']
                 },
                 {
                     model: User,

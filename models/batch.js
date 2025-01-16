@@ -15,14 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
-    quantity_of_stems: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true,
-      validate: {
-        isDecimal: true,
-        min: 0
-      }
-    },
     provider_id: {
       type: DataTypes.UUID,
       allowNull: true,
@@ -31,28 +23,12 @@ module.exports = (sequelize, DataTypes) => {
         key: 'provider_id'
       }
     },
-    classification_id: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: 'Classifications',
-        key: 'classification_id'
-      }
-    },
     product_id: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
         model: 'Products',
         key: 'product_id'
-      }
-    },
-    measure_id: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: 'Measures',
-        key: 'measure_id'
       }
     },
     created_by: {
@@ -79,9 +55,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Batch.associate = (models) => {
     Batch.belongsTo(models.Provider, { foreignKey: 'provider_id', as: 'provider' });
-    Batch.belongsTo(models.Classification, { foreignKey: 'classification_id', as: 'classification' });
     Batch.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
-    Batch.belongsTo(models.Measure, { foreignKey: 'measure_id', as: 'measure' });
     Batch.belongsTo(models.User, { foreignKey: 'created_by', as: 'creator' });
     Batch.belongsTo(models.Company, { foreignKey: 'company_id', as: 'company' });
   };
