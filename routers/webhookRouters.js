@@ -5,7 +5,7 @@ const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
 const { User, FlowHistory, Step, Flow } = require('../models');
-const { getChatResponse } = require('./openai');
+const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
 
 // Middleware para manejar errores asíncronos
@@ -16,7 +16,7 @@ const asyncHandler = fn => (req, res, next) => {
 // Middleware para verificar la API key (opcional pero recomendado)
 const verifyApiKey = (req, res, next) => {
     const apiKey = req.headers['x-api-key'];
-    const validApiKey = process.env.WHATSAPP_API_KEY; // Almacenar de forma segura en .env
+    const validApiKey = process.env.WHATSAPP_API_KEY;
 
     if (apiKey === validApiKey) {
         next();
@@ -91,6 +91,7 @@ router.post('/', asyncHandler(async (req, res) => {
             }
 
             feedback = await getChatResponse(user, message.text.body);
+            feedback = feedback.replaceAll('**', '*');
 
             if (user) {
                 console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
@@ -101,7 +102,8 @@ router.post('/', asyncHandler(async (req, res) => {
                 // Preparar el payload para la API de WhatsApp
                 const whatsappPayload = {
                     to: toNumber,
-                    body: feedback,
+                    body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
+Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
                     // Otros campos según tu necesidad
                 };
 

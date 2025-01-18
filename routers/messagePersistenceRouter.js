@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { MessagePersistence, User } = require('../models');
 const { body, param, validationResult } = require('express-validator');
-const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatch');
 
 // Middleware para manejar errores asíncronos
 const asyncHandler = fn => (req, res, next) => {
