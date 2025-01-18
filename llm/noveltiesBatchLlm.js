@@ -182,7 +182,11 @@ async function getChatResponse(user, message) {
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
     if (exit) {
+      try{
       await saveNovelty(content, user);
+      } catch (e) {
+
+      }
       feedbackFromOpenAi = `*Detalles de la novedad:*\n
 ${convertirAListaTexto(content)}\n\n
 ✅¡Registro exitoso!✅ \n\n
