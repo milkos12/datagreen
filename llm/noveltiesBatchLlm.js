@@ -136,7 +136,7 @@ async function saveNovelty(novelties, user) {
       await Novelty.create({
         comment: item.comments,
         quantity_of_stems: item.amout_stems,
-        batch_id: 'aa0856e0-1482-449f-ba59-6a88e58a4e82', // Default value
+        batch_id: 'e249589b-3e92-4f6c-8a49-a1b7c0db5b5e', // Default value
         classification_id: clasification.classification_id,
         measure_id: measure.measure_id,
         created_by: user.user_id,
