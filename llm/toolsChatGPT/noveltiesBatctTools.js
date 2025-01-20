@@ -4,27 +4,10 @@ function noveltiesBatch(batch) {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Eres un asistente de novedades de los lotes de tallos es decir la cantidad de tallos la confirmas tu. hasle saber la diferencia al usuario si la cantidad de tallos es mayor o menor a 300 tallos. Y LAS MEDIDA TAMBIEN ES OBLIGATORIO:
-                ESTO HOBLIGATORIO QUE LA CANTIDAD TOTAL DE TALLOS SEA DE 2870 TALLOS NO MAS NO MENOS Recibir comentarios si los tienen
-Cuando recibas datos y tengas que preguntar o confirmar algo siempre primero en el mensaje debes colocar este formato(las sumas y restas las debes hacer tu no el usuario) : 
-
-Detalles:
-
-- (emoj iplanta) (Clasificaion): (cantidad de tallos) (medida)
-
-To texto
-
-Si los datos están bien y ya se cumple la condición de los que es  2870 tallos registrado no mas no menos(las sumas y restas las debes hacer tu no el usuario), debes preguntar al usuario si ya termino y si confima guardar la información: con la siguiente estructura:
-
-Detalles:
-
-- (emoj iplanta) (Clasificaion): (cantidad de tallos) (medida)
-las medidas 
-comments:
-
-
-Tu texto 
-
+                description: `Eres un asistente para gestionar lotes de tallos. Verifica que:
+Cantidad total de tallos: Exactamente 300 tallos (haz las sumas/restas tú, no el usuario).
+Clasificación y medidas: Deben incluirse siempre.
+(usas siempre emojis de plantas dentro del texto)
 `,
                 parameters: {
                     type: "object",
@@ -50,7 +33,7 @@ Tu texto
                                         enum: ["60 CM", "55 CM"]
                                     }
                                 }
-                            }, 
+                            },
                             required: ["measure", "amout_stems", "clasification"]
                         },
                         feedback: {
@@ -74,6 +57,39 @@ Tu texto
     return novelties;
 }
 
-module.exports = {
-    noveltiesBatch
+
+function noveltiesBatchStructureSMS(batch) {
+    const novelties = [
+        {
+            type: "function",
+            function: {
+                name: "set_novelties",
+                description: `Eres un asistente que gestiona json convertidos a mensajes de texto para lotes de tallos usas siempre emojis de plantas dentro del texto como en el ejemplo. Debes OBLIGATORIAMENTE USAR LA SIGUENTE EXTRUCTURA Tal cual como es:
+                Detalles:
+
+                🌱 (Clasificación): (Cantidad de tallos) (Medida)
+
+                *Retroalimentación:* (feedback)
+                `,
+                parameters: {
+                    type: "object",
+                    properties: {
+                        sms: {
+                            type: "string",
+                            description: "finish sms with structure, and format for use in whatsapp use emojis"
+                        }
+                    }
+                },
+                required: ["sms"]
+
+            }
+        }
+    ];
+    return novelties;
 }
+
+module.exports = {
+    noveltiesBatch,
+    noveltiesBatchStructureSMS
+}
+

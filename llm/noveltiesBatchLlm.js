@@ -1,6 +1,6 @@
 const { openai } = require('../services/setupOpenIa');
 const { MessagePersistence, User, Classification, Measure, Novelty, Batch } = require('../models');
-const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatctTools');
+const { noveltiesBatch, noveltiesBatchStructureSMS } = require('./toolsChatGPT/noveltiesBatctTools');
 
 function convertirAListaTexto(detialBatch) {
   try {
@@ -21,15 +21,15 @@ async function deleteThread(user) {
   }
 }
 
-async function getCompletion(messages, model = "o1", temperature = 0.5, max_tokens = 300) {
+async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-20", temperature = 0.7, max_tokens = 300) {
+
   try {
-    const tools = noveltiesBatch() || [];
     const response = await openai.chat.completions.create({
       model,
       messages,
       temperature,
       max_tokens,
-      tools,
+      tools: functions,
     });
 
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
@@ -124,23 +124,14 @@ async function saveNovelty(novelties, user) {
         name: item.clasification,
       },  
     });
-    console.log(clasification, `------------------------{
-        company_id: ${user.company_id},
-        name: ${item.clasification},
-      }`);
+
     const measure = await Measure.findOne({
       where: {
         company_id: user.company_id,
         name: item.measure,
       },  
     });
-    console.log(measure ,`******************{
-        company_id: ${user.company_id},
-        name: ${item.measure},
-      }`)
 
-    
-      console.log('-------------------------------MILLER ASNDRES---->');
       await Novelty.create({
         comment: item.comments,
         quantity_of_stems: item.amout_stems,
@@ -155,6 +146,7 @@ async function saveNovelty(novelties, user) {
 
 async function getChatResponse(user, message) {
   try {
+    message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
 
     let count = 0;
@@ -165,7 +157,7 @@ async function getChatResponse(user, message) {
 
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-      const finalResponse = await getCompletion(messages.messages, "gpt-4o", 0.8, 300);
+      const finalResponse = await getCompletion(messages.messages, noveltiesBatch());
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
@@ -178,7 +170,7 @@ async function getChatResponse(user, message) {
       if (content) break;
       if (exit) break;
     }
-
+    
     await addNewMessage('assistant', feedbackFromOpenAi, user);
 
     if (exit) {
@@ -195,6 +187,14 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
       await deleteThread(user);
     }
 
+    let smsStructure = await getCompletion([{role: 'user', content: `${content}`}], noveltiesBatchStructureSMS());
+
+    if (smsStructure.arguments) {
+      objectFromOpenAi = JSON.parse(smsStructure.arguments);
+      
+      feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
+    }
+    
     return feedbackFromOpenAi;
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
