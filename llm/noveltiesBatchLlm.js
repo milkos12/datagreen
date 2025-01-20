@@ -121,14 +121,14 @@ async function saveNovelty(novelties, user) {
   novelties.forEach(async (item) => {
     const clasification = await Classification.findOne({
       where: {
-        company_id: user.company_id,
+        //company_id: user.company_id,
         name: item.clasification,
       },  
     });
 
     const measure = await Measure.findOne({
       where: {
-        company_id: user.company_id,
+        //company_id: user.company_id,
         name: item.measure,
       },  
     });
