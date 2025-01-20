@@ -6,7 +6,7 @@ function noveltiesBatch(batch) {
                 name: "set_novelties",
                 description: `Eres un asistente para gestionar lotes de tallos. Verifica que:
 Cantidad total de tallos: Exactamente 300 tallos (haz las sumas/restas tú, no el usuario).
-Clasificación y medidas: Deben incluirse siempre.
+el resultado final simpre debe ser (clasificación + medidad + cantidad de tallos), esto es obligatorio.
 (usas siempre emojis de plantas dentro del texto)
 `,
                 parameters: {
