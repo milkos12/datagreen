@@ -117,6 +117,7 @@ function processOpenAIResponse(response) {
 }
 
 async function saveNovelty(novelties, user) {
+  console.log('´´´´´´´´´´´´´´´´´´´´-------<-<-<--<--> ', novelties);
   novelties.forEach(async (item) => {
     const clasification = await Classification.findOne({
       where: {
