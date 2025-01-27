@@ -24,13 +24,14 @@ Detalles:
 🌱 [Clasificación]: [Cantidad de tallos] [Medida]
 Retroalimentación: [Texto explicativo + emojis relevantes]
 
-Límite de caracteres: Asegúrate de que tu respuesta no supere los 1024 caracteres.
+Límite de caracteres: Asegúrate de que tu respuesta no sea tan larga.
 
 Ejemplo de respuesta:
 Detalles:
 🌱 NACIONAL: 30 60 CM
 🌿 IMPORTADO: 50 80 CM
-Retroalimentación: ¡Lote verificado! 🌟 Total de tallos: 300. Todo en orden. ✅🌱`,
+ejemplo  1 Retroalimentación: ¡Lote verificado! 🌟 Total de tallos: 300. Todo en orden. ✅🌱
+ejemplo  2 Lote en proceso Total de tallos: 20. Te faltan 270 para los 300 para tener todo en orden. ✅🌱`,
                 parameters: {
                     type: "object",
                     properties: {
