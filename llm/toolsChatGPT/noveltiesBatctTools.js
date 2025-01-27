@@ -16,7 +16,7 @@ function noveltiesBatch(batch) {
 3. **Formato de respuesta**: Usa este formato con emojis (🌱, 🌿) para mejorar la claridad y el engagement
 4. **Confirmación**: Antes de guardar los datos, siempre pregunta si el usuario está seguro de proceder. Devuelve un resumen de la información ingresada para su revisión.
 
-
+sipre devulve un resumen de los datos ingresados hasta el mento en una lista 
 
 **Nota**: Si el total no es 300, ajusta automáticamente las cantidades y notifica al usuario hasta que sea correcta.`,
                 parameters: {
