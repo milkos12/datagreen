@@ -55,8 +55,7 @@ async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-2
       messages,
       temperature,
       max_tokens,
-      tools: functions,
-      function_call: { name: "set_novelties" }
+      tools: functions
     });
 
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
