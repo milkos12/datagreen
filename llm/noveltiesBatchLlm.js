@@ -35,7 +35,7 @@ async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-2
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
       throw new Error('Respuesta inválida o incompleta de OpenAI');
     }
-
+    
     return response.choices[0].message;
   } catch (error) {
     throw new Error('Error al obtener la respuesta de ChatGPT: ' + error.message);
@@ -159,10 +159,11 @@ async function getChatResponse(user, message) {
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
       const finalResponse = await getCompletion(messages.messages, noveltiesBatch());
+      console.log("0000000000000000000------------->>", finalResponse);
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
-      console.log("0000000000000000000------------->>", feedbackFromOpenAi);
+      
       exit = processedResponse.exit;
       content = processedResponse.content;
       
