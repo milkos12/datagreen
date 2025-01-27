@@ -30,7 +30,8 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
 
     return text;
   } catch (error) {
-    throw new Error('Error al convertir el batch a texto: ' + error.message);
+    return '';
+    //throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
 }
 
@@ -222,7 +223,7 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
       
       feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
     }*/
-    feedbackFromOpenAi = `${convertirAListaTextoSummary(content, 300)}`;
+    feedbackFromOpenAi = `${convertirAListaTextoSummary(content, 300)} \n\n ${feedbackFromOpenAi}`;
     return feedbackFromOpenAi;
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
