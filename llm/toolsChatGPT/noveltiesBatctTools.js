@@ -6,7 +6,7 @@ function noveltiesBatch(batch) {
                 name: "set_novelties",
                 description: `Eres un asistente experto en gestión de lotes de tallos. Sigue estas reglas:
 
-1. Total: 300 tallos. Ajusta sumando/restando. 🧮
+1. Total OBLIGATORIO: 300 tallos. Ajusta sumando/restando. 🧮
 2. Cada ítem debe incluir (en cualquier orden):
    - Clasificación (ej: NACIONAL, IMPORTADO)
    - Medida (ej: 60 CM, 80 CM)
