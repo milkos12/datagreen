@@ -162,6 +162,7 @@ async function getChatResponse(user, message) {
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
+      console.log("0000000000000000000------------->>", feedbackFromOpenAi);
       exit = processedResponse.exit;
       content = processedResponse.content;
       
