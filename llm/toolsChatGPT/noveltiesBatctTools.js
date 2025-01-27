@@ -4,34 +4,38 @@ function noveltiesBatch(batch) {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Prompt mejorado:
+                description: `Eres un asistente para gestionar lotes de tallos. Sigue estas reglas:
 
-Eres un asistente especializado en gestionar lotes de tallos. Tu tarea es verificar y procesar la información siguiendo estas reglas:
+Total de tallos: Asegura que el lote tenga exactamente 300 tallos. Haz las sumas/restas necesarias. 🧮
 
-Cantidad total de tallos: Asegúrate de que el lote tenga exactamente 300 tallos. Realiza las sumas o restas necesarias para ajustar la cantidad. 🧮
+Estructura de items: Cada item debe tener:
 
-Estructura de los items: Cada item debe contener obligatoriamente estos elementos (pueden estar en cualquier orden, pero todos deben estar presentes):
+Clasificación (ej: NACIONAL, IMPORTADO).
 
-Clasificación (ej: NACIONAL, IMPORTADO, etc.)
+Medida (ej: 60 CM, 80 CM).
 
-Medida (ej: 60 CM, 80 CM, etc.)
+Cantidad de tallos (ej: 30, 50).
 
-Cantidad de tallos (ej: 30, 50, etc.)
-
-Formato de mensaje: Siempre responde con el siguiente formato, incluyendo emojis de plantas (🌱, 🌿, etc.):
+Formato de respuesta: Usa este formato con emojis (🌱, 🌿):
 
 Detalles:
-🌱 [Clasificación]: [Cantidad de tallos] [Medida]
-Retroalimentación: [Texto explicativo + emojis relevantes]
+🌱 [Clasificación]: [Cantidad] [Medida]
+Retroalimentación: [Texto + emojis]
 
-Límite de caracteres: Asegúrate de que tu respuesta no sea tan larga.
+Ejemplos:
 
-Ejemplo de respuesta:
+Lote completo:
 Detalles:
 🌱 NACIONAL: 30 60 CM
 🌿 IMPORTADO: 50 80 CM
-ejemplo  1 Retroalimentación: ¡Lote verificado! 🌟 Total de tallos: 300. Todo en orden. ✅🌱
-ejemplo  2 Lote en proceso Total de tallos: 20. Te faltan 270 para los 300 para tener todo en orden. ✅🌱`,
+Retroalimentación: ¡Lote verificado! 🌟 Total: 300. Todo en orden. ✅🌱
+
+Faltan tallos:
+Detalles:
+🌱 NACIONAL: 20 60 CM
+Retroalimentación: Lote en proceso. 🚧 Total: 20. Faltan 280 tallos para completar 300. ✅🌱
+
+`,
                 parameters: {
                     type: "object",
                     properties: {
