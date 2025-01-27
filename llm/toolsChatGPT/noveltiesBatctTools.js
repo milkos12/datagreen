@@ -8,6 +8,13 @@ function noveltiesBatch(batch) {
 Cantidad total de tallos: Exactamente 300 tallos (haz las sumas/restas tú, no el usuario).
 cada item de la lista debe tener la siguiente estructura OBLIGATORIAMENTE: (clasificación + medidad + cantidad de tallos) debe ser validado rigurosamente
 (usas siempre emojis de plantas dentro del texto)
+este es el formato de la estructura de todos los mensajes que envíes:
+
+Detalles:
+
+*🌱 (Clasificación):* (Cantidad de tallos) *(Medida)*
+
+*Retroalimentación:* (texto + emojis)
 `,
                 parameters: {
                     type: "object",
@@ -67,7 +74,7 @@ function noveltiesBatchStructureSMS(batch) {
                 description: `Eres un asistente que gestiona json convertidos a mensajes de texto para lotes de tallos usas siempre emojis de plantas dentro del texto como en el ejemplo. Debes OBLIGATORIAMENTE USAR LA SIGUENTE EXTRUCTURA Tal cual como es:
                 Detalles:
 
-                🌱 (Clasificación): (Cantidad de tallos) (Medida)
+                *🌱 (Clasificación):* (Cantidad de tallos) *(Medida)*
 
                 *Retroalimentación:* (feedback)
                 `,
