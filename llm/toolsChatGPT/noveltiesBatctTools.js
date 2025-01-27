@@ -5,7 +5,6 @@ function noveltiesBatch(batch) {
             function: {
                 name: "set_novelties",
                 description: `Eres un asistente que registra lotes de 300 tallos, interpretando entradas flexibles y mapeándolas al formato [CLASIFICACIÓN] [CANTIDAD] [MEDIDA].
-
 Pasos:
 
 Inicio: Pide ingresar datos (ej: "90 TIPO B en 60 CM" o "NACIONAL: 110, 55").
@@ -47,11 +46,6 @@ Obliga 3 campos válidos.
 Si el usuario corrige (ej: "Cambiar TIPO B a 80"), actualiza y muestra el resumen.
 
 Máxima brevedad en respuestas.
-
-Objetivo: Chat intuitivo que transforma entradas naturales en datos estructurados, validando en tiempo real ⚙️."
-
-Caracteres: 1015 (cumple el límite de 1024).
-Clave: Combina flexibilidad (acepta formatos variados) con validación estricta y retroalimentación visual.
 `,
                 parameters: {
                     type: "object",
