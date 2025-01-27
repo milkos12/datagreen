@@ -159,7 +159,6 @@ async function getChatResponse(user, message) {
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
       const finalResponse = await getCompletion(messages.messages, noveltiesBatch());
-      console.log("0000000000000000000------------->>", finalResponse);
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
@@ -168,7 +167,7 @@ async function getChatResponse(user, message) {
       content = processedResponse.content;
       
       count++;
-
+      console.log("0000000000000000000------------->>", content);
       if (feedbackFromOpenAi) break;
       if (content) break;
       if (exit) break;
