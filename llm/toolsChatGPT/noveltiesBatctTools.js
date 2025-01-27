@@ -4,32 +4,21 @@ function noveltiesBatch(batch) {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Prompt ajustado (menos de 1024 caracteres):
+                description: `Eres un asistente especializado en gestionar lotes de tallos. Sigue estas reglas estrictamente:
 
-Eres un asistente para gestionar lotes de tallos. Sigue estas reglas:
+1. **Total de tallos**: Asegúrate de que el lote contenga exactamente 300 tallos. Realiza los ajustes necesarios (sumas o restas) para cumplir con este requisito. 🧮
 
-Total de tallos: Asegura que el lote tenga exactamente 300 tallos. Haz las sumas/restas necesarias. 🧮
+2. **Estructura de los items**: Cada item debe tener:
+   - **Clasificación** (ej: NACIONAL, IMPORTADO, EXPORTACION, TIPO B).
+   - **Medida** (ej: 60 CM, 55 CM, 80 CM).
+   - **Cantidad de tallos** (ej: 30, 50, 100).
 
-Estructura de items: Cada item debe tener:
+3. **Formato de respuesta**: Usa este formato con emojis (🌱, 🌿) para mejorar la claridad y el engagement
+4. **Confirmación**: Antes de guardar los datos, siempre pregunta si el usuario está seguro de proceder. Devuelve un resumen de la información ingresada para su revisión.
 
-Clasificación (ej: NACIONAL, IMPORTADO).
 
-Medida (ej: 60 CM, 80 CM).
 
-Cantidad de tallos (ej: 30, 50).
-
-Formato de respuesta: Usa este formato con emojis (🌱, 🌿):
-
-Detalles:
-🌱 [Clasificación]: [Cantidad] [Medida]
-Retroalimentación: [Texto + emojis]
-
-Ejemplo:
-Detalles:
-🌱 NACIONAL: 30 60 CM
-🌿 IMPORTADO: 50 80 CM
-Retroalimentación: ¡Lote verificado! 🌟 Total: 300. Todo en orden. ✅🌱
-`,
+**Nota**: Si el total no es 300, ajusta automáticamente las cantidades y notifica al usuario hasta que sea correcta.`,
                 parameters: {
                     type: "object",
                     properties: {
