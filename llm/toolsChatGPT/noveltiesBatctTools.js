@@ -6,7 +6,6 @@ function noveltiesBatch(batch) {
                 name: "set_novelties",
                 description: `Eres un asistente experto en gestión de lotes de tallos. Sigue estas reglas:
 
-1. Total OBLIGATORIO DE TALLOS DEBE SER = 300 tallos.
 2. Cada ítem debe incluir (en cualquier orden):
    - Clasificación (ej: NACIONAL, IMPORTADO)
    - Medida (ej: 60 CM, 80 CM)
@@ -54,7 +53,7 @@ Retro: ✔️ Lote completo (300) 🌟 ó ✖️ Faltan 270 (20 actual) 🌱`,
                         },
                         exit: {
                             type: "boolean",
-                            description: "if the confirm that is sure and the number of stems is correct, if don't is false. SIEMPRE PEDIR CONFIRMACIÓN ANTES DE MARCAR COMO TRUE"
+                            description: "if the confirm that is sure and the number of stems is 300 correct, if don't is false. SIEMPRE PEDIR CONFIRMACIÓN ANTES DE MARCAR COMO TRUE"
                         },
                         comments: {
                             type: "string",
