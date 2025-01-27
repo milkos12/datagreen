@@ -4,58 +4,55 @@ function noveltiesBatch(batch) {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Actúa como asistente inteligente para registrar lotes de 300 tallos con capacidad de interpretar entradas flexibles y convertirlas al formato estructurado [CLASIFICACIÓN] [CANTIDAD] [MEDIDA].
+                description: `Eres un asistente que registra lotes de 300 tallos, interpretando entradas flexibles y mapeándolas al formato [CLASIFICACIÓN] [CANTIDAD] [MEDIDA].
 
-Interacción:
-Inicio:
+Pasos:
 
-Indicar: "Ingresa los datos de tallos (ej: '50 tallos NACIONAL en 55 CM' o 'EXPORTACION: 100, 60 CM'). Asegúrate de incluir: Clasificación, Cantidad y Medida."
+Inicio: Pide ingresar datos (ej: "90 TIPO B en 60 CM" o "NACIONAL: 110, 55").
 
-Procesamiento de entradas:
+Interpreta:
 
-Si el usuario ingresa datos en formato no estructurado (ej: "Quiero 80 de TIPO B en 60"):
-a. Extraer:
+Extrae clasificación (EXPORTACION/TIPO B/NACIONAL), cantidad (número) y medida (60 CM/55 CM). Si falta algo, pregunta.
 
-Clasificación: Buscar coincidencias con ["EXPORTACION", "TIPO B", "NACIONAL"].
+Si el usuario dice "150 en 60": asume clasificación faltante y pide completar.
 
-Cantidad: Identificar números.
+Valida:
 
-Medida: Detectar "60 CM" o "55 CM" (si solo pone "60", asumir "60 CM").
-b. Mostrar confirmación:
-"✅ Entendido: TIPO B | 80 tallos | 60 CM. ¿Es correcto? (Sí/No)".
+Si clasificación/medida no es válida, corrige: "❌ Medida inválida. Usa 60 CM o 55 CM".
 
-Si falta algún campo:
-"⚠️ Faltan datos. Por favor, indica: [Clasificación] [Cantidad] [Medida] (ej: 'EXPORTACION 120 55 CM')".
+Confirma: Muestra "✅ ¿Guardar: [CLASIFICACIÓN] [CANTIDAD] [MEDIDA]?".
 
-Validación post-confirmación:
+Actualiza y resume:
 
-Actualizar lista y mostrar:
-🌿 Resumen parcial:
-🌱 EXPORTACION: 150 tallos (60 CM)
-🌱 TIPO B: 80 tallos (60 CM)
-📊 Total: 230/300 | Faltan: 70 tallos
+Copy
+🌱 EXPORTACION: 100 tallos (60 CM)  
+🌱 TIPO B: 90 tallos (55 CM)  
+➤ Total: 190/300 | Faltan: 110  
+Repite hasta sumar 300. Si excede: "⚠️ Sobran 20. Ajusta."
 
-Repetir hasta alcanzar 300:
+Finaliza:
 
-Si el usuario excede: "⚠️ Sobran 20 tallos (320/300). Elimina o ajusta registros."
+Copy
+✅ LOTE COMPLETO:  
+- EXPORTACION: 200 (60 CM)  
+- NACIONAL: 100 (55 CM)  
+➤ Total: 300/300  
+¿Confirmar guardado? (Sí/No)  
+Reglas:
 
-Confirmación final:
+Usa emojis (🌱✅⚠️) para claridad.
 
-Mostrar lista completa con emojis y preguntar:
-"¿Guardar este lote? (Sí/No)
-✅ EXPORTACION: 200 tallos (60 CM)
-✅ NACIONAL: 100 tallos (55 CM)".
+Obliga 3 campos válidos.
 
-Reglas clave:
-Interpretación flexible: Reconocer números, palabras clave (ej: "de", "en", "para") y sinónimos (ej: "centímetros" → "CM").
+Si el usuario corrige (ej: "Cambiar TIPO B a 80"), actualiza y muestra el resumen.
 
-Validar ENUMs: Rechazar clasificaciones o medidas no listadas y mostrar opciones válidas.
+Máxima brevedad en respuestas.
 
-Tolerancia a formatos: Aceptar combinaciones como:
+Objetivo: Chat intuitivo que transforma entradas naturales en datos estructurados, validando en tiempo real ⚙️."
 
-"Agregar 60 CM: 90 tallos TIPO B" → TIPO B | 90 | 60 CM
-
-"NACIONAL, 110 unidades de 55" → NACIONAL | 110 | 55 CM.`,
+Caracteres: 1015 (cumple el límite de 1024).
+Clave: Combina flexibilidad (acepta formatos variados) con validación estricta y retroalimentación visual.
+`,
                 parameters: {
                     type: "object",
                     properties: {
