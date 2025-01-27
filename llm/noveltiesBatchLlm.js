@@ -56,6 +56,7 @@ async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-2
       temperature,
       max_tokens,
       tools: functions,
+      function_call: { name: "set_novelties" }
     });
 
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
@@ -81,10 +82,10 @@ async function createNewTreadMessages(user, message) {
   }
 }
 
-async function addNewMessage(role, message, user) {
+async function addNewMessage(role, message, user, content) {
   try {
     const messageContent = message || "Valor predeterminado";
-    const newMessage = [{ role, content: messageContent }];
+    let newMessage = [{ role, content: messageContent }];
     const threadMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
 
     if (!threadMessages) {
@@ -92,6 +93,10 @@ async function addNewMessage(role, message, user) {
       return;
     }
 
+    if(user === 'assistant') {
+      newMessage = [{ role, content: `${content}` || messageContent }];
+
+    }
     const updatedMessages = Array.isArray(threadMessages.messages)
       ? [...threadMessages.messages, ...newMessage]
       : newMessage;
@@ -200,7 +205,7 @@ async function getChatResponse(user, message) {
       if (exit) break;
     }
     
-    await addNewMessage('assistant', feedbackFromOpenAi, user);
+    await addNewMessage('assistant', feedbackFromOpenAi, user, content);
 
     if (exit) {
       try{
