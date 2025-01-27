@@ -10,6 +10,31 @@ function convertirAListaTexto(detialBatch) {
   }
 }
 
+function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
+  try {
+    let textFeedbackAmoutStems = '';
+    let amoutStems = 0;
+
+    detialBatch.forEach(item => amoutStems += item.amout_stems || 0);
+
+    if((amoutStemsLote - amoutStems) > 0) {
+      textFeedbackAmoutStems = `*Faltan ${amoutStemsLote - amoutStems} tallos* por registrar ⚠️🌱\n`;
+    } else if((amoutStemsLote - amoutStems) < 0) {
+      textFeedbackAmoutStems = `Se han registrado *${amoutStems - amoutStemsLote} tallos de más ❌🌱*\n`;
+    } else {
+      textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
+    }
+      
+    const text =  detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'}: ${item.amout_stems || '(NO PUSISTE TALLOS)'} (${item.measure || '(FALTA MEDIDA)'})`).join('\n');
+    text = `${textFeedbackAmoutStems}\n${text}`;
+
+    return text;
+  } catch (error) {
+    throw new Error('Error al convertir el batch a texto: ' + error.message);
+  }
+}
+
+
 async function deleteThread(user) {
   try {
     const threadMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
@@ -168,8 +193,9 @@ async function getChatResponse(user, message) {
       
       count++;
       console.log("0000000000000000000------------->>", content);
-      if (feedbackFromOpenAi) break;
+      
       if (content) break;
+      if (feedbackFromOpenAi) break;
       if (exit) break;
     }
     
@@ -189,14 +215,14 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
       await deleteThread(user);
     }
 
-    let smsStructure = await getCompletion([{role: 'user', content: `${content}`}], noveltiesBatchStructureSMS());
+    /*let smsStructure = await getCompletion([{role: 'user', content: `${content}`}], noveltiesBatchStructureSMS());
 
     if (smsStructure.arguments) {
       objectFromOpenAi = JSON.parse(smsStructure.arguments);
       
       feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
-    }
-    
+    }*/
+    feedbackFromOpenAi = `${convertirAListaTextoSummary(content, 300)}`;
     return feedbackFromOpenAi;
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
