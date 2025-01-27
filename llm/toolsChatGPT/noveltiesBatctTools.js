@@ -44,7 +44,6 @@ function noveltiesBatch(batch) {
                                     }
                                 }
                             },
-                            required: ["measure", "amout_stems", "clasification"]
                         },
                         feedback: {
                             type: "string",
@@ -60,7 +59,7 @@ function noveltiesBatch(batch) {
                         }
                     }
                 },
-                required: ["conten", "feedback", "exit", "measure"]
+                required: ["exit"]
             }
         }
     ];
