@@ -14,13 +14,7 @@ function noveltiesBatch(batch) {
 Formato DE TU respuesta:
 Detalles:
 🌱 [Clasificación]: [Cantidad] [Medida]
-Retro: [Texto + emojis] Max 300 caracteres.
-
-Ejemplos:
-Detalles:
-🌱 NACIONAL: 30 60 CM
-🌿 IMPORTADO: 50 80 CM
-Retro: ✔️ Lote completo (300) 🌟 ó ✖️ Faltan 270 (20 actual) 🌱`,
+Retro: [Texto + emojis] Max 50 caracteres.`,
                 parameters: {
                     type: "object",
                     properties: {
