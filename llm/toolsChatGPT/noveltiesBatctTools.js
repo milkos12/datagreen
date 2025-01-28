@@ -31,12 +31,12 @@ la cantidad exacta de tallos registrados debe ser de 300`,
                                     },
                                     clasification: {
                                         type: "string",
-                                        description: "name of new clasification for the steps",
+                                        description: "name of clasification for the steps",
                                         enum: ["EXPORTACION", "TIPO B", "NACIONAL"]
                                     },
                                     measure: {
                                         type: "string",
-                                        description: "name of new measure for the steps",
+                                        description: "name of measure for the steps",
                                         enum: ["60 CM", "55 CM"]
                                     }
                                 }
@@ -46,17 +46,12 @@ la cantidad exacta de tallos registrados debe ser de 300`,
                             type: "string",
                             description: "feedback for the user"
                         },
-                        exit: {
-                            type: "boolean",
-                            description: "if the confirm that is sure and the number of stems is 300 correct, if don't is false. SIEMPRE PEDIR CONFIRMACIÓN ANTES DE MARCAR COMO TRUE"
-                        },
                         comments: {
                             type: "string",
                             description: "comments for the user"
                         }
                     }
-                },
-                required: ["exit"]
+                }
             }
         }
     ];
