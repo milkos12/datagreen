@@ -147,12 +147,12 @@ function processOpenAIResponse(response) {
 }
 
 async function saveNovelty(novelties, user, stemsBatch) {
-  console.log('´´´´´´´´´´´´´´´´´´´´-------<-<-<--<--> ', novelties);
+  
   let amoutStems = 0;
 
-  detialBatch.forEach(item => amoutStems += item.amout_stems || 0);
+  novelties.forEach(item => amoutStems += item.amout_stems || 0);
 
-  if ((amoutStemsLote - amoutStems) != 0) {
+  if ((stemsBatch - amoutStems) != 0) {
     return false;
   }
 
