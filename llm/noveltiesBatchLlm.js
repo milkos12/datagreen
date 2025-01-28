@@ -17,15 +17,15 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
 
     detialBatch.forEach(item => amoutStems += item.amout_stems || 0);
 
-    if((amoutStemsLote - amoutStems) > 0) {
+    if ((amoutStemsLote - amoutStems) > 0) {
       textFeedbackAmoutStems = `*Faltan ${amoutStemsLote - amoutStems} tallos* por registrar ⚠️🌱\n`;
-    } else if((amoutStemsLote - amoutStems) < 0) {
+    } else if ((amoutStemsLote - amoutStems) < 0) {
       textFeedbackAmoutStems = `Se han registrado *${amoutStems - amoutStemsLote} tallos de más ❌🌱*\n`;
     } else {
       textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
     }
-      
-    let text =  detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'}: ${item.amout_stems || '(NO PUSISTE TALLOS)'} (${item.measure || '(FALTA MEDIDA)'})`).join('\n');
+
+    let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'}: ${item.amout_stems || '(NO PUSISTE TALLOS)'} (${item.measure || '(FALTA MEDIDA)'})`).join('\n');
     text = `${textFeedbackAmoutStems}\n${text}`;
 
     return text;
@@ -61,7 +61,7 @@ async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-2
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
       throw new Error('Respuesta inválida o incompleta de OpenAI');
     }
-    
+
     return response.choices[0].message;
   } catch (error) {
     throw new Error('Error al obtener la respuesta de ChatGPT: ' + error.message);
@@ -92,7 +92,7 @@ async function addNewMessage(role, message, user, content) {
       return;
     }
 
-    if(user === 'assistant') {
+    if (user === 'assistant') {
       newMessage = [{ role, content: `${content}` || messageContent }];
 
     }
@@ -146,33 +146,42 @@ function processOpenAIResponse(response) {
   return { feedbackFromOpenAi, exit, content };
 }
 
-async function saveNovelty(novelties, user) {
+async function saveNovelty(novelties, user, stemsBatch) {
   console.log('´´´´´´´´´´´´´´´´´´´´-------<-<-<--<--> ', novelties);
+  let amoutStems = 0;
+
+  detialBatch.forEach(item => amoutStems += item.amout_stems || 0);
+
+  if ((amoutStemsLote - amoutStems) != 0) {
+    return false;
+  }
+
   novelties.forEach(async (item) => {
     const clasification = await Classification.findOne({
       where: {
         //company_id: user.company_id,
         name: item.clasification,
-      },  
+      },
     });
 
     const measure = await Measure.findOne({
       where: {
         //company_id: user.company_id,
         name: item.measure,
-      },  
+      },
     });
 
-      await Novelty.create({
-        comment: item.comments,
-        quantity_of_stems: item.amout_stems,
-        batch_id: 'e249589b-3e92-4f6c-8a49-a1b7c0db5b5e', // Default value
-        classification_id: clasification.classification_id,
-        measure_id: measure.measure_id,
-        created_by: user.user_id,
-      });
-    
+    await Novelty.create({
+      comment: item.comments,
+      quantity_of_stems: item.amout_stems,
+      batch_id: 'e249589b-3e92-4f6c-8a49-a1b7c0db5b5e', // Default value
+      classification_id: clasification.classification_id,
+      measure_id: measure.measure_id,
+      created_by: user.user_id,
+    });
+
   });
+  return true;
 }
 
 async function getChatResponse(user, message) {
@@ -192,32 +201,36 @@ async function getChatResponse(user, message) {
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
-      
+
       exit = processedResponse.exit;
       content = processedResponse.content;
-      
+
       count++;
       console.log("0000000000000000000------------->>", content);
-      
+
       if (content) break;
       if (feedbackFromOpenAi) break;
       if (exit) break;
     }
-    
+
     await addNewMessage('assistant', feedbackFromOpenAi, user, content);
 
     if (exit) {
-      try{
-      await saveNovelty(content, user);
+      let valid = false;
+      try {
+        valid = await saveNovelty(content, user, 300);
       } catch (e) {
 
       }
-      feedbackFromOpenAi = `*Detalles de la novedad:*\n
+      if (valid) {
+        feedbackFromOpenAi = `*Detalles de la novedad:*\n
 ${convertirAListaTexto(content)}\n\n
 ✅¡Registro exitoso!✅ \n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
-      await deleteThread(user);
+        await deleteThread(user);
+      }
+
     }
 
     /*let smsStructure = await getCompletion([{role: 'user', content: `${content}`}], noveltiesBatchStructureSMS());
