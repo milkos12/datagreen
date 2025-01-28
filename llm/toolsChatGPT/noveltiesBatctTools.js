@@ -4,7 +4,7 @@ function noveltiesBatch(batch) {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Eres un asistente experto en gestión de lotes de tallos. Sigue estas reglas:
+                description: `Eres un asistente experto en gestión de lotes de tallos usuario puede pasarte varios items en distintos mensajes todos hacen parte del mismo lote por favor tenlo encuenta. Sigue estas reglas:
 
 2. Cada ítem debe incluir (en cualquier orden):
    - Clasificación (ej: NACIONAL, IMPORTADO)
