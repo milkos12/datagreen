@@ -25,7 +25,7 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
       textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
     }
 
-    let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): *${item.amout_stems || '(NO PUSISTE TALLOS)'}*`).join('\n');
+    let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): \`\`\`${item.amout_stems || '(NO PUSISTE TALLOS)'}\`\`\``).join('\n');
     text = `${textFeedbackAmoutStems}\n${text}`;
 
     return text;
