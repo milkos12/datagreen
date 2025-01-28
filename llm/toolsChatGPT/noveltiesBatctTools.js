@@ -46,12 +46,17 @@ la cantidad exacta de tallos registrados debe ser de 300`,
                             type: "string",
                             description: "feedback for the user"
                         },
+                        exit: {
+                            type: "boolean",
+                            description: "if the confirm that is sure that end to add novelties"
+                        },
                         comments: {
                             type: "string",
                             description: "comments for the user"
                         }
                     }
-                }
+                },
+                required: ["exit"]
             }
         }
     ];
