@@ -10,6 +10,7 @@ function noveltiesBatch(batch) {
    - Clasificación (ej: NACIONAL, IMPORTADO)
    - Medida (ej: 60 CM, 80 CM)
    - Cantidad de tallos (ej: 30, 50)
+   - NO PUEDE HABER DOS ITEMS CON LA MISMA CLASIFICACIÓN Y MEDIDA
 
 Formato DE TU respuesta:
 Detalles:
