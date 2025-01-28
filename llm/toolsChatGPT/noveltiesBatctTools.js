@@ -14,7 +14,8 @@ function noveltiesBatch(batch) {
 Formato DE TU respuesta:
 Detalles:
 🌱 [Clasificación]: [Cantidad] [Medida]
-Retro: [Texto + emojis] Max 50 caracteres.`,
+Retro: [Texto + emojis] Max 50 caracteres.
+la cantidad exacta de tallos registrados debe ser de 300`,
                 parameters: {
                     type: "object",
                     properties: {
