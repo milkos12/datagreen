@@ -102,8 +102,8 @@ router.post('/', asyncHandler(async (req, res) => {
                 // Preparar el payload para la API de WhatsApp
                 const whatsappPayload = {
                     to: toNumber,
-                    body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
-Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
+                    /*body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
+Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,*/
                     // Otros campos según tu necesidad
                     type: "interactive",
                     interactive: {
