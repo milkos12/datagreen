@@ -10,7 +10,7 @@ function convertirAListaTexto(detialBatch) {
   }
 }
 
-function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh) {
+function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh, exit) {
   try {
     let textFeedbackAmoutStems = '';
     let amoutStems = 0;
@@ -25,9 +25,14 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh) {
       textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
       stemsFinsh = true;
     }
-
+    
     let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): \`\`\`${item.amout_stems || '(NO PUSISTE TALLOS)'}\`\`\``).join('\n');
-    text = `${textFeedbackAmoutStems}\n${text}`;
+    
+    if(exit && stemsFinsh) {
+      text = `${textFeedbackAmoutStems}\n`;
+    } else {
+      text = `${textFeedbackAmoutStems}\n${text}`;
+    }
 
     return [text, stemsFinsh];
   } catch (error) {
@@ -245,7 +250,7 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
       feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
     }*/
     let text = '';
-    [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh)
+    [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
 
     if(exit) {
