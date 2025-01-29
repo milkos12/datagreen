@@ -102,7 +102,10 @@ router.post('/', asyncHandler(async (req, res) => {
                 const toNumber = `57${user.phone_number}@s.whatsapp.net`;
 
                 // Preparar el payload para la API de WhatsApp
-                let whatsappPayload = {};
+                let whatsappPayload = {
+                    to: toNumber,
+                    body: 'Dgreen Systems',
+                };
                 if(stemsFinsh) {
                     whatsappPayload = {
                         to: toNumber,
