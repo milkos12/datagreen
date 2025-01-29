@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
+const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
 const { User, FlowHistory, Step, Flow } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
@@ -38,7 +38,7 @@ const getActivesFlowToUser = async (user) => {
         },
         include: [{
             model: Flow,
-            as: 'flow' 
+            as: 'flow'
         }]
     });
 
@@ -73,7 +73,7 @@ router.post('/', asyncHandler(async (req, res) => {
                 continue; // Saltar este mensaje
             }
 
-            fromNumber = fromNumber.replace('@s.whatsapp.net','');
+            fromNumber = fromNumber.replace('@s.whatsapp.net', '');
 
             // Eliminar el prefijo '57' si está presente
             if (fromNumber.startsWith('57')) {
@@ -91,7 +91,7 @@ router.post('/', asyncHandler(async (req, res) => {
             }
             let sms = '';
             let stemsFinsh = false;
-            [sms, stemsFinsh] = await getChatResponse(user, message.text.body); 
+            [sms, stemsFinsh] = await getChatResponse(user, message.text.body);
             feedback = sms;
             feedback = feedback.replaceAll('**', '*');
 
@@ -107,11 +107,26 @@ router.post('/', asyncHandler(async (req, res) => {
                     body: 'Dgreen Systems',
                 };
                 console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
-                if(stemsFinsh) {
+                if (stemsFinsh) {
                     whatsappPayload = {
+                        header: {
+                            text: "Guardar Novedades:"
+                        },
+                        body: {
+                            text: feedback || 'Error en el servicio Dgreen Systems.',
+                        },
+                        action: {
+                            buttons: [
+                                {
+                                    type: "quick_reply",
+                                    title: "Guardar",
+                                    id: "23"
+                                }
+                            ]
+                        },
+                        type: "button",
                         to: toNumber,
-                        body: 'tallos bien',
-                        // Otros campos según tu necesidad
+                        view_once: true
                     };
                 } else {
                     whatsappPayload = {
