@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
+const { getAvailableBatch } = require('../llm/availableBatch');
 const { User, FlowHistory, Step, Flow } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
@@ -85,9 +86,18 @@ router.post('/', asyncHandler(async (req, res) => {
 
             // Obtener el usuario y verificar si está en un flujo activo
             const user = await User.findOne({ where: { phone_number: fromNumber } });
+            let showMenuBatchs = false;
             if (!user) {
                 console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
                 continue;
+            }
+
+
+            const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
+            if (haveMessages.length === 0) {
+                console.log('YA TERMINOOOO........................................................................');
+                showMenuBatchs = true;
+                return;
             }
             let sms = '';
             let stemsFinsh = false;
@@ -115,7 +125,7 @@ router.post('/', asyncHandler(async (req, res) => {
                     body: 'Dgreen Systems',
                 };
                 console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
-                if (stemsFinsh) {
+                if (stemsFinsh && !haveMessages) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     whatsappPayload = {
                         header: {
@@ -137,7 +147,43 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         view_once: true
                     };
-                } else {
+                } else if (haveMessages) {
+                    URL = 'https://gate.whapi.cloud/messages/interactive';
+                    const loteList = await getAvailableBatch(user);
+                    let listLotes = '';
+                    let buttonList = [];
+                    if(loteList) {
+                        loteList.forEach((lote) => {
+                            listLotes += lote.leable;
+                            buttonList.push({
+                                    type: "quick_reply",
+                                    title: lote.nameLote,
+                                    id: lote.idLote
+                            })
+                        });
+                    }
+                    
+                    whatsappPayload = {
+                        header: {
+                            text: feedback || 'Error en el servicio Dgreen Systems.',
+                        },
+                        body: {
+                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
+                        },
+                        action: {
+                            buttons: [
+                                loteList || { 
+                                    type: "quick_reply",
+                                    title: "No tienes lotes disponibles 🤗",
+                                    id: "0"
+                                }
+                            ]
+                        },
+                        type: "button",
+                        to: toNumber,
+                        view_once: true
+                    };
+                }else {
                     whatsappPayload = {
                         to: toNumber,
                         body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
