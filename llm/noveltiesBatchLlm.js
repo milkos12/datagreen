@@ -229,6 +229,8 @@ ${convertirAListaTexto(content)}\n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
         await deleteThread(user);
+      } else {
+        feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
       }
 
     }
