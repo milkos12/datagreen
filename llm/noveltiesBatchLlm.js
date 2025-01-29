@@ -18,9 +18,9 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
     detialBatch.forEach(item => amoutStems += item.amout_stems || 0);
 
     if ((amoutStemsLote - amoutStems) > 0) {
-      textFeedbackAmoutStems = `*Faltan ${amoutStemsLote - amoutStems} tallos* por registrar ⚠️🌱\n`;
+      textFeedbackAmoutStems = `*Faltan ${amoutStemsLote - amoutStems} tallos* por registrar ⚠️🌱\nPor favor completa 👇🍃\n`;
     } else if ((amoutStemsLote - amoutStems) < 0) {
-      textFeedbackAmoutStems = `Se han registrado *${amoutStems - amoutStemsLote} tallos de más ❌🌱*\n`;
+      textFeedbackAmoutStems = `Se han registrado *${amoutStems - amoutStemsLote} tallos de más ❌ Por favor corrige 👇⚠️⛔🍃🌱*\n`;
     } else {
       textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
     }
