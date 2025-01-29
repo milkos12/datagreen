@@ -10,7 +10,7 @@ function convertirAListaTexto(detialBatch) {
   }
 }
 
-function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
+function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh) {
   try {
     let textFeedbackAmoutStems = '';
     let amoutStems = 0;
@@ -23,14 +23,15 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote) {
       textFeedbackAmoutStems = `Se han registrado *${amoutStems - amoutStemsLote} tallos de más ❌ Por favor corrige 👇⚠️⛔🍃🌱*\n`;
     } else {
       textFeedbackAmoutStems = `Se ha registrado la cantidad *correcta de ${amoutStems} tallos ✅🌱*\n`;
+      stemsFinsh = true;
     }
 
     let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): \`\`\`${item.amout_stems || '(NO PUSISTE TALLOS)'}\`\`\``).join('\n');
     text = `${textFeedbackAmoutStems}\n${text}`;
 
-    return text;
+    return {text: '', stemsFinsh};
   } catch (error) {
-    return '';
+    return {text: '', stemsFinsh};
     //throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
 }
@@ -185,6 +186,7 @@ async function saveNovelty(novelties, user, stemsBatch) {
 }
 
 async function getChatResponse(user, message) {
+  let stemsFinsh = false;
   try {
     message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
@@ -242,11 +244,13 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
       
       feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
     }*/
-    feedbackFromOpenAi = `${convertirAListaTextoSummary(content, 300)} \n\n ${feedbackFromOpenAi}`;
-    return feedbackFromOpenAi;
+    let text = '';
+    [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh)
+    feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
+    return [feedbackFromOpenAi, stemsFinsh];
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
-    return '⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.';
+    return [sms: '⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.', stemsFinsh ];
   }
 }
 
