@@ -242,13 +242,6 @@ Si cometiste algún error, por favor, avísale a la persona encargada`;
 
     }
 
-    /*let smsStructure = await getCompletion([{role: 'user', content: `${content}`}], noveltiesBatchStructureSMS());
-
-    if (smsStructure.arguments) {
-      objectFromOpenAi = JSON.parse(smsStructure.arguments);
-      
-      feedbackFromOpenAi = objectFromOpenAi.sms || feedbackFromOpenAi;
-    }*/
     let text = '';
     [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;

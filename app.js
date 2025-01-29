@@ -21,6 +21,7 @@ const permittedProcessesRoutes = require('./routers/permittedProcessesRoutes');
 const rolesRoutes = require('./routers/rolesRoutes');
 const app  = express();
 const errorHandler = require('./middlewares/errorHandler'); 
+const availableTest = require('./llm/availableBatch')
 
 app.use(express.json());
 
@@ -55,3 +56,8 @@ app.use(errorHandler);
 app.listen(3000, () => {
     console.log('Server up, and listen to 3000');
 });
+
+(async ()=>{
+    await availableTest.getAvailableBatch();
+})();
+

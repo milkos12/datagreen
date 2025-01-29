@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { ContentBatch, Classification, Measure } = require('../models');
+const { ContentBatch, Classification, Measure, Batch } = require('../models');
 const { body, param, validationResult } = require('express-validator');
 
 // Middleware to handle asynchronous errors
@@ -37,6 +37,10 @@ router.get('/', asyncHandler(async (req, res) => {
                 model: Measure,
                 as: 'measure',
                 attributes: ['measure_id', 'name']
+            },
+            {
+                model: Batch,
+                as: 'batch'
             }
         ]
     });
@@ -112,11 +116,12 @@ router.put('/:id',
         param('id').isUUID().withMessage('ContentBatch ID is invalid'),
         body('classification_id').optional().isUUID().withMessage('Valid Classification ID is required'),
         body('measure_id').optional().isUUID().withMessage('Valid Measure ID is required'),
+        body('batch_id').optional().isUUID().withMessage('Valid Batch ID is required'),
         body('quantity_of_stems').optional().isInt({ min: 0 }).withMessage('Quantity of stems must be a non-negative integer')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { classification_id, measure_id, quantity_of_stems } = req.body;
+        const { classification_id, measure_id, quantity_of_stems, batch_id } = req.body;
 
         const contentBatch = await ContentBatch.findByPk(id);
         if (!contentBatch) {
@@ -138,6 +143,14 @@ router.put('/:id',
                 return res.status(400).json({ message: 'Measure not found' });
             }
             contentBatch.measure_id = measure_id;
+        }
+
+        if (batch_id) {
+            const batch = await Batch.findByPk(batch_id);
+            if (!batch) {
+                return res.status(400).json({ message: 'Measure not found' });
+            }
+            contentBatch.batch_id = batch_id;
         }
 
         if (quantity_of_stems !== undefined) {

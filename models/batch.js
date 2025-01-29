@@ -54,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Batch.associate = (models) => {
+    Batch.hasMany(models.ContentBatch, { foreignKey: 'batch_id', as: 'contentBatches' });
     Batch.belongsTo(models.Provider, { foreignKey: 'provider_id', as: 'provider' });
     Batch.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
     Batch.belongsTo(models.User, { foreignKey: 'created_by', as: 'creator' });

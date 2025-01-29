@@ -8,6 +8,14 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false
       },
+      batch_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: 'Batches',
+          key: 'batch_id'
+        }
+      },
       classification_id: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -39,6 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     });
   
     ContentBatch.associate = (models) => {
+      ContentBatch.belongsTo(models.Batch, { foreignKey: 'batch_id', as: 'batch'});
       ContentBatch.belongsTo(models.Classification, { foreignKey: 'classification_id', as: 'classification' });
       ContentBatch.belongsTo(models.Measure, { foreignKey: 'measure_id', as: 'measure' });
     };
