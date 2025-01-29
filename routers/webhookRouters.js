@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
+const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
 const { User, FlowHistory, Step, Flow } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
@@ -38,7 +38,7 @@ const getActivesFlowToUser = async (user) => {
         },
         include: [{
             model: Flow,
-            as: 'flow' 
+            as: 'flow'
         }]
     });
 
@@ -73,7 +73,7 @@ router.post('/', asyncHandler(async (req, res) => {
                 continue; // Saltar este mensaje
             }
 
-            fromNumber = fromNumber.replace('@s.whatsapp.net','');
+            fromNumber = fromNumber.replace('@s.whatsapp.net', '');
 
             // Eliminar el prefijo '57' si está presente
             if (fromNumber.startsWith('57')) {
@@ -105,6 +105,27 @@ router.post('/', asyncHandler(async (req, res) => {
                     body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
 Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
                     // Otros campos según tu necesidad
+                    type: "interactive",
+                    interactive: {
+                        type: "button",
+                        body: {
+                            text: "Elige una opción:"
+                        },
+                        action: {
+                            buttons: [
+                                {
+                                    type: "reply",
+                                    title: "Opción 1",
+                                    id: "opcion_1"
+                                },
+                                {
+                                    type: "reply",
+                                    title: "Opción 2",
+                                    id: "opcion_2"
+                                }
+                            ]
+                        }
+                    }
                 };
 
                 // Enviar el mensaje a WhatsApp
