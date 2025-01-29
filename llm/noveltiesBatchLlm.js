@@ -234,7 +234,7 @@ async function getChatResponse(user, message) {
 ${convertirAListaTexto(content)}\n\n
 ✅¡Registro exitoso!✅ \n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
-Si cometiste algún error, or favor, avísale a la persona encargada`;
+Si cometiste algún error, por favor, avísale a la persona encargada`;
         await deleteThread(user);
       } else {
         feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
