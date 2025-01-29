@@ -10,7 +10,7 @@ function noveltiesBatch(batch) {
    - Clasificación (ej: NACIONAL, IMPORTADO)
    - Medida (ej: 60 CM, 80 CM)
    - Cantidad de tallos (ej: 30, 50)
-   - NO PUEDE HABER DOS ITEMS CON LA MISMA CLASIFICACIÓN Y MEDIDA (ej:NACIONAL 10 (30 CM) , NACIONAL 50 (30 CM)) esto lo puedes ajusar a NACIONAL 80 (30 CM) sumando los tallos
+   - NO PUEDE HABER DOS ITEMS CON LA MISMA CLASIFICACIÓN Y MEDIDA (ej:NACIONAL 10 (30 CM) , NACIONAL 50 (30 CM)) esto lo puedes ajusar a NACIONAL 80 (30 CM) para completar 300 tallos, pero simpre inica que fe lo que cambiaste
 
 Formato DE TU respuesta:
 Detalles:
