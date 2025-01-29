@@ -91,7 +91,14 @@ router.post('/', asyncHandler(async (req, res) => {
             }
             let sms = '';
             let stemsFinsh = false;
-            [sms, stemsFinsh] = await getChatResponse(user, message.text.body);
+
+            let msmsFormUser = '';
+            try {
+                msmsFormUser = message.text.body;
+            } catch (error) {
+                msmsFormUser = message.reply.buttons_reply.title
+            }
+            [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
             feedback = sms;
             feedback = feedback.replaceAll('**', '*');
 
