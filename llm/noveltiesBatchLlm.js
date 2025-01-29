@@ -29,7 +29,7 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh, ex
     let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): \`\`\`${item.amout_stems || '(NO PUSISTE TALLOS)'}\`\`\``).join('\n');
     
     if(exit && stemsFinsh) {
-      text = `${textFeedbackAmoutStems}\n`;
+      text = `${textFeedbackAmoutStems}`;
     } else {
       text = `${textFeedbackAmoutStems}\n${text}`;
     }
@@ -234,7 +234,7 @@ async function getChatResponse(user, message) {
 ${convertirAListaTexto(content)}\n\n
 ✅¡Registro exitoso!✅ \n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
-Si cometiste algún error, por favor avísale a tu compañero de trabajo encargado. 👩‍💼👨‍💼`;
+Si cometiste algún error, or favor, avísale a la persona encargada`;
         await deleteThread(user);
       } else {
         feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
