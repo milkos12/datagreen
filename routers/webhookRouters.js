@@ -106,7 +106,7 @@ router.post('/', asyncHandler(async (req, res) => {
                     to: toNumber,
                     body: 'Dgreen Systems',
                 };
-                console.log('-----------oooooooo-------------->>>>> ', stemsFinsh);
+                console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
                 if(stemsFinsh) {
                     whatsappPayload = {
                         to: toNumber,
