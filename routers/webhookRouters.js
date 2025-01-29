@@ -96,6 +96,7 @@ router.post('/', asyncHandler(async (req, res) => {
             feedback = feedback.replaceAll('**', '*');
 
             if (user) {
+                let URL = process.env.WHATSAPP_API_URL;
                 console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
 
                 // Preparar el 'to' con el prefijo '57'
@@ -108,6 +109,7 @@ router.post('/', asyncHandler(async (req, res) => {
                 };
                 console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
                 if (stemsFinsh) {
+                    URL = 'https://gate.whapi.cloud/messages/interactive';
                     whatsappPayload = {
                         header: {
                             text: "Guardar Novedades:"
@@ -138,7 +140,7 @@ router.post('/', asyncHandler(async (req, res) => {
                 }
                 // Enviar el mensaje a WhatsApp
                 try {
-                    const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
+                    const response = await axios.post(URL, whatsappPayload, {
                         headers: {
                             'Authorization': process.env.WHATSAPP_API_TOKEN,
                             'Content-Type': 'application/json'
