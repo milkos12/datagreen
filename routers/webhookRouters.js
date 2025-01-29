@@ -112,10 +112,10 @@ router.post('/', asyncHandler(async (req, res) => {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     whatsappPayload = {
                         header: {
-                            text: "Guardar Novedades:"
+                            text: feedback || 'Error en el servicio Dgreen Systems.',
                         },
                         body: {
-                            text: feedback || 'Error en el servicio Dgreen Systems.',
+                            text: "Guardar Novedades:",
                         },
                         action: {
                             buttons: [
