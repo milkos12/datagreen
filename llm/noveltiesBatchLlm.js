@@ -250,7 +250,7 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
     return [feedbackFromOpenAi, stemsFinsh];
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
-    return [sms: '⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.', stemsFinsh ];
+    return ['⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.', stemsFinsh ];
   }
 }
 
