@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
+const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler'); 
 const { User, FlowHistory, Step, Flow } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
@@ -38,7 +38,7 @@ const getActivesFlowToUser = async (user) => {
         },
         include: [{
             model: Flow,
-            as: 'flow'
+            as: 'flow' 
         }]
     });
 
@@ -73,7 +73,7 @@ router.post('/', asyncHandler(async (req, res) => {
                 continue; // Saltar este mensaje
             }
 
-            fromNumber = fromNumber.replace('@s.whatsapp.net', '');
+            fromNumber = fromNumber.replace('@s.whatsapp.net','');
 
             // Eliminar el prefijo '57' si está presente
             if (fromNumber.startsWith('57')) {
@@ -89,8 +89,10 @@ router.post('/', asyncHandler(async (req, res) => {
                 console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
                 continue;
             }
-
-            feedback = await getChatResponse(user, message.text.body);
+            let text = '';
+            let stemsFinsh = false;
+            [text, stemsFinsh] = await getChatResponse(user, message.text.body); 
+            feedback = text;
             feedback = feedback.replaceAll('**', '*');
 
             if (user) {
@@ -100,34 +102,21 @@ router.post('/', asyncHandler(async (req, res) => {
                 const toNumber = `57${user.phone_number}@s.whatsapp.net`;
 
                 // Preparar el payload para la API de WhatsApp
-                const whatsappPayload = {
-                    to: toNumber,
-                    /*body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
-Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,*/
-                    // Otros campos según tu necesidad
-                    type: "interactive",
-                    interactive: {
-                        type: "button",
-                        body: {
-                            text: "Elige una opción:"
-                        },
-                        action: {
-                            buttons: [
-                                {
-                                    type: "reply",
-                                    title: "Opción 1",
-                                    id: "opcion_1"
-                                },
-                                {
-                                    type: "reply",
-                                    title: "Opción 2",
-                                    id: "opcion_2"
-                                }
-                            ]
-                        }
-                    }
-                };
-
+                let whatsappPayload = {};
+                if(stemsFinsh) {
+                    whatsappPayload = {
+                        to: toNumber,
+                        body: 'tallos bien',
+                        // Otros campos según tu necesidad
+                    };
+                } else {
+                    whatsappPayload = {
+                        to: toNumber,
+                        body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
+    Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
+                        // Otros campos según tu necesidad
+                    };
+                }
                 // Enviar el mensaje a WhatsApp
                 try {
                     const response = await axios.post(process.env.WHATSAPP_API_URL, whatsappPayload, {
