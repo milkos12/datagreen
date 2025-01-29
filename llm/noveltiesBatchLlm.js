@@ -29,9 +29,9 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh) {
     let text = detialBatch.map(item => `- 🌱 ${item.clasification || '(FALTA CLASIFICACIÓN)'} (${item.measure || '(FALTA MEDIDA)'}): \`\`\`${item.amout_stems || '(NO PUSISTE TALLOS)'}\`\`\``).join('\n');
     text = `${textFeedbackAmoutStems}\n${text}`;
 
-    return {text: '', stemsFinsh};
+    return [text, stemsFinsh];
   } catch (error) {
-    return {text: '', stemsFinsh};
+    return ['', stemsFinsh];
     //throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
 }
