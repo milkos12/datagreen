@@ -89,10 +89,10 @@ router.post('/', asyncHandler(async (req, res) => {
                 console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
                 continue;
             }
-            let text = '';
+            let sms = '';
             let stemsFinsh = false;
-            [text, stemsFinsh] = await getChatResponse(user, message.text.body); 
-            feedback = text;
+            [sms, stemsFinsh] = await getChatResponse(user, message.text.body); 
+            feedback = sms;
             feedback = feedback.replaceAll('**', '*');
 
             if (user) {
