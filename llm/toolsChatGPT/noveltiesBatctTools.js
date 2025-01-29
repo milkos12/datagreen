@@ -48,7 +48,7 @@ Retro: [Texto + emojis] NO MAS DE 20 caracteres.`,
                         },
                         exit: {
                             type: "boolean",
-                            description: "if the confirm that is sure that end to add novelties"
+                            description: "if the confirm that is sure that end to add novelties and the user send Gurdar"
                         },
                         comments: {
                             type: "string",

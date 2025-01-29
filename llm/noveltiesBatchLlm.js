@@ -247,6 +247,10 @@ Si cometiste algún error, por favor avísale a tu compañero de trabajo encarga
     let text = '';
     [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
+
+    if(exit) {
+      stemsFinsh = false;
+    }
     return [feedbackFromOpenAi, stemsFinsh];
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
