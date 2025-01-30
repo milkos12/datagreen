@@ -1,5 +1,5 @@
 const { openai } = require('../services/setupOpenIa');
-const { MessagePersistence, User, Classification, Measure, Novelty, Batch } = require('../models');
+const { MessagePersistence, User, Classification, Measure, Novelty, Batch, ContentActivity } = require('../models');
 const { noveltiesBatch, noveltiesBatchStructureSMS } = require('./toolsChatGPT/noveltiesBatctTools');
 const { determinateAmoutStemsBatch } = require('./availableBatch');
 
@@ -54,6 +54,27 @@ async function deleteThread(user) {
   } catch (error) {
     throw new Error('Error al eliminar el hilo de mensajes: ' + error.message);
   }
+}
+
+async function desactivateActivity(user, batch_id) {
+  try {
+
+    const activitiesUser = await ContentActivity.findOne({
+      where: {
+        user_encharge_id: user.user_id,
+        is_active: true,
+        batch_id
+      }
+    });
+
+    if (activitiesUser) {
+      activitiesUser.set('is_active', false);
+      await activitiesUser.save();
+    }
+  } catch (error) {
+    throw new Error('Error al desactivar la actividad: ' + error.message);
+  }
+  
 }
 
 async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-20", temperature = 0.3, max_tokens = 300) {
@@ -196,6 +217,7 @@ async function saveNovelty(novelties, user, stemsBatch) {
 async function getChatResponse(user, message) {
   let stemsFinsh = false;
   let amountStems = 0;
+  let batchInfo = {};
   try {
     message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
@@ -208,7 +230,7 @@ async function getChatResponse(user, message) {
 
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-      const batchInfo = await Batch.findOne({ where: { name: messages.whatsapp_id}});
+      batchInfo = await Batch.findOne({ where: { name: messages.whatsapp_id}});
       amountStems = await determinateAmoutStemsBatch(batchInfo.batch_id);
       const finalResponse = await getCompletion(messages.messages, noveltiesBatch(amountStems));
       const processedResponse = processOpenAIResponse(finalResponse);
@@ -242,6 +264,7 @@ ${convertirAListaTexto(content)}\n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor, avísale a la persona encargada`;
         await deleteThread(user);
+        await desactivateActivity(user, batchInfo.batch_id);
       } else {
         feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
       }
