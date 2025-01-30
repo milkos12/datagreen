@@ -108,6 +108,8 @@ router.post('/', asyncHandler(async (req, res) => {
                 msmsFormUser = message.text.body;
             } catch (error) {
                 msmsFormUser = message.reply.buttons_reply.title
+                console.log("+++++++++++++++++  ",message.reply.buttons_reply );
+                console.log("{{{{{{{{{{{{{{{  ", message.reply)
             }
 
             if (!showMenuBatchs) {
