@@ -176,8 +176,8 @@ router.post('/', asyncHandler(async (req, res) => {
                             text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
                         },
                         action: {
-                            buttons: loteList && loteList.length > 0 
-                            ? [...loteList] 
+                            buttons: buttonList && buttonList.length > 0 
+                            ? [...buttonListt] 
                             : [
                                 {
                                   type: "quick_reply",
