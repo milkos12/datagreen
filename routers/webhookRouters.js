@@ -5,7 +5,7 @@ const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
 const { getAvailableBatch } = require('../llm/availableBatch');
-const { User, FlowHistory, Step, Flow } = require('../models');
+const { User, FlowHistory, Step, Flow, MessagePersistence } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
 
