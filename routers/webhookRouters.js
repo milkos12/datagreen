@@ -197,7 +197,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         textTititle = 'Lotes disponibles:';
                     } else {
                         textInfo = `🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
-                        textTititle = '😦 ¡Wow, parece que terminaste! 💪🌿';
+                        textTititle = '¡Wow, parece que terminaste! 💪🌿';
                     }
                     
                     whatsappPayload = {
