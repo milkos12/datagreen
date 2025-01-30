@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { MessagePersistence, User } = require('../models');
+const { MessagePersistence, User, Activity } = require('../models');
 const { body, param, validationResult } = require('express-validator');
 
 // Middleware para manejar errores asíncronos
@@ -42,11 +42,17 @@ router.get('/:id',
     asyncHandler(async (req, res) => {
         const { id } = req.params;
         const message = await MessagePersistence.findByPk(id, {
-            include: {
-                model: User,
-                as: 'createdById',
-                attributes: ['user_id', 'name', 'email']
-            }
+            include: [
+                {
+                    model: User,
+                    as: 'createdById',
+                    attributes: ['user_id', 'name', 'email']
+                }, {
+                    model: Activity,
+                    as: 'activity',
+                    attributes: ['activity_id', 'name']
+                }
+            ]
         });
 
         if (!message) {
@@ -61,10 +67,12 @@ router.get('/:id',
 router.post('/create',
     validate([
         body('messages').notEmpty().withMessage('Messages is required'),
-        body('created_by').isUUID().withMessage('Valid User ID is required')
+        body('created_by').isUUID().withMessage('Valid User ID is required'),
+        body('activity_id').isUUID().withMessage('Activiti ID is required'),
+        body('whatsapp_id').notEmpty().withMessage('Whatsapp ID is required'),
     ]),
     asyncHandler(async (req, res) => {
-        const { messages, created_by } = req.body;
+        const { messages, created_by, whatsapp_id, activity_id } = req.body;
 
         // Verificar que el usuario existe
         const user = await User.findByPk(created_by);
@@ -72,7 +80,15 @@ router.post('/create',
             return res.status(400).json({ message: 'User not found' });
         }
 
-        const newMessage = await MessagePersistence.create({ messages, user_id: created_by });
+        // Verificar que la actividad existe
+        if (activity_id) {
+            const activity = await Activity.findByPk(activity_id);
+            if (!activity) {
+                return res.status(400).json({ message: 'Activity not found' });
+            }
+        }
+
+        const newMessage = await MessagePersistence.create({ messages, user_id: created_by, whatsapp_id, activity_id });
         res.status(201).json(newMessage);
     })
 );
@@ -82,26 +98,37 @@ router.put('/:id',
     validate([
         param('id').isUUID().withMessage('MessagePersistence ID is invalid'),
         body('messages').optional().notEmpty().withMessage('Messages cannot be empty'),
-        body('created_by').optional().isUUID().withMessage('Valid User ID is required')
+        body('created_by').optional().isUUID().withMessage('Valid User ID is required'),
+        body('activity_id').optional().isUUID().withMessage('Valid Activity ID is required'),
+        body('whatsapp_id').optional().notEmpty().withMessage('Whatsapp ID is required'),
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { messages, created_by } = req.body;
+        const { messages, created_by, activity_id, whatsapp_id } = req.body;
 
         const message = await MessagePersistence.findByPk(id);
         if (!message) {
             return res.status(404).json({ message: 'MessagePersistence not found' });
         }
 
+        // Vefirify that the Activity exists
+        const activity = await Activity.findByPk(activity_id);
 
+        if (!activity) {
+            return res.status(400).json({ message: 'Activity not found' });
+        } else {
+            message.activity_id = activity_id;
+        }
 
         if (messages) {
-            console.log("************************* ", message.messages)
             const updatedMessages = Array.isArray(message.messages)
                 ? [...message.messages, messages]
                 : [messages];
             message.set('messages', updatedMessages);
-            console.log("*******************ññññññ****** ", message.messages)
+        }
+
+        if (whatsapp_id) {
+            message.whatsapp_id = whatsapp_id;
         }
 
         await message.save();

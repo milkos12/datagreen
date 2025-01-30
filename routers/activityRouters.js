@@ -61,7 +61,7 @@ router.get('/:id',
 router.post('/create',
     validate([
         body('name').notEmpty().withMessage('Name is required'),
-        body('company_id').isUUID().withMessage('Valid Company ID is required')
+        body('company_id').isUUID().withMessage('Valid Company ID is required'),
     ]),
     asyncHandler(async (req, res) => {
         const { name, company_id } = req.body;
