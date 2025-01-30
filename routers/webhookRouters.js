@@ -196,7 +196,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         textInfo = `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`;
                         textTititle = 'Lotes disponibles:';
                     } else {
-                        textInfo = `¡Hola! 🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
+                        textInfo = `🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
                         textTititle = '😦 ¡Wow, parece que terminaste! 💪🌿';
                     }
                     
@@ -205,7 +205,7 @@ router.post('/', asyncHandler(async (req, res) => {
                             text: textInfo,
                         },
                         body: {
-                            text: 'Lotes disponibles:',
+                            text: textTititle,
                         },
                         action: {
                             buttons: buttonList && buttonList.length > 0 
