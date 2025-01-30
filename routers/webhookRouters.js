@@ -177,7 +177,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         },
                         action: {
                             buttons: buttonList && buttonList.length > 0 
-                            ? [...buttonListt] 
+                            ? [...buttonList] 
                             : [
                                 {
                                   type: "quick_reply",
