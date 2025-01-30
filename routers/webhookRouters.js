@@ -94,7 +94,8 @@ router.post('/', asyncHandler(async (req, res) => {
 
 
             const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-            if (haveMessages.length === 0) {
+            
+            if (haveMessages === null) {
                 console.log('YA TERMINOOOO........................................................................');
                 showMenuBatchs = true;
                 return;
@@ -108,9 +109,13 @@ router.post('/', asyncHandler(async (req, res) => {
             } catch (error) {
                 msmsFormUser = message.reply.buttons_reply.title
             }
-            [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
-            feedback = sms;
-            feedback = feedback.replaceAll('**', '*');
+
+            if (!showMenuBatchs) {
+                [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
+                feedback = sms;
+                feedback = feedback.replaceAll('**', '*');
+            }
+            
 
             if (user) {
                 let URL = process.env.WHATSAPP_API_URL;
@@ -125,7 +130,7 @@ router.post('/', asyncHandler(async (req, res) => {
                     body: 'Dgreen Systems',
                 };
                 console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
-                if (stemsFinsh && !haveMessages) {
+                if (stemsFinsh && !showMenuBatchs) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     whatsappPayload = {
                         header: {
@@ -147,7 +152,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         view_once: true
                     };
-                } else if (haveMessages) {
+                } else if (showMenuBatchs) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     const loteList = await getAvailableBatch(user);
                     let listLotes = '';
