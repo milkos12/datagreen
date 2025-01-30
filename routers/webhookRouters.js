@@ -98,7 +98,7 @@ router.post('/', asyncHandler(async (req, res) => {
             if (haveMessages === null) {
                 console.log('YA TERMINOOOO........................................................................');
                 showMenuBatchs = true;
-                return;
+               
             }
             let sms = '';
             let stemsFinsh = false;
