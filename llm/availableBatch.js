@@ -22,7 +22,7 @@ async function textSummaryBatch(batchs) {
     const array = await Promise.all(
         batchs.map(async (batch) => {
           const amount = await determinateAmoutStemsBatch(batch.batch_id);
-          return {leable:`- 🌱 *${batch.name}* ${batch.product.name} ${amount}\n`, nameLote: batch.name, idLote: batch.batch_id};
+          return {leable:`- 🌱 *${batch.name}* ${batch.product.name} ${amount}\n`, nameLote: batch.name, idLote: `${batch.batch_id}-LOTES-CLASIFICACION`};
         })
       );
     
