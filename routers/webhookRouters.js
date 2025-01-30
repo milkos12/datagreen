@@ -96,7 +96,6 @@ router.post('/', asyncHandler(async (req, res) => {
             const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
             
             if (haveMessages === null) {
-                console.log('YA TERMINOOOO........................................................................');
                 showMenuBatchs = true;
                
             }
@@ -188,10 +187,22 @@ router.post('/', asyncHandler(async (req, res) => {
                             })
                         });
                     }
+
+                    let batchsAvailable = buttonList && buttonList.length > 0  ? true : false;
+                    let textInfo = '';
+                    let textTititle = '';
+
+                    if(batchsAvailable) {
+                        textInfo = `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`;
+                        textTititle = 'Lotes disponibles:';
+                    } else {
+                        textInfo = `¡Hola! 🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
+                        textTititle = '😦 ¡Wow, parece que terminaste! 💪🌿';
+                    }
                     
                     whatsappPayload = {
                         header: {
-                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`,
+                            text: textInfo,
                         },
                         body: {
                             text: 'Lotes disponibles:',
