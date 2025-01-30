@@ -1,6 +1,9 @@
 const { openai } = require('../services/setupOpenIa');
 const { MessagePersistence, User, Classification, Measure, Novelty, Batch } = require('../models');
 const { noveltiesBatch, noveltiesBatchStructureSMS } = require('./toolsChatGPT/noveltiesBatctTools');
+const { determinateAmoutStemsBatch } = require('./availableBatch');
+
+const batch = require('../models/batch');
 
 function convertirAListaTexto(detialBatch) {
   try {
@@ -192,6 +195,7 @@ async function saveNovelty(novelties, user, stemsBatch) {
 
 async function getChatResponse(user, message) {
   let stemsFinsh = false;
+  let amountStems = 0;
   try {
     message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
@@ -204,7 +208,9 @@ async function getChatResponse(user, message) {
 
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-      const finalResponse = await getCompletion(messages.messages, noveltiesBatch());
+      const batchInfo = await Batch.findOne({ where: { name: messages.whatsapp_id}});
+      amountStems = await determinateAmoutStemsBatch(batchInfo.batch_id);
+      const finalResponse = await getCompletion(messages.messages, noveltiesBatch(amountStems));
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
@@ -225,7 +231,7 @@ async function getChatResponse(user, message) {
     if (exit) {
       let valid = false;
       try {
-        valid = await saveNovelty(content, user, 300);
+        valid = await saveNovelty(content, user, amountStems);
       } catch (e) {
 
       }
@@ -243,7 +249,7 @@ Si cometiste algún error, por favor, avísale a la persona encargada`;
     }
 
     let text = '';
-    [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh, exit)
+    [text, stemsFinsh] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
 
     if(exit) {

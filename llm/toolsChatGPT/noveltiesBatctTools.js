@@ -1,16 +1,16 @@
-function noveltiesBatch(batch) {
+function noveltiesBatch(amountStems) {
     const novelties = [
         {
             type: "function",
             function: {
                 name: "set_novelties",
-                description: `Eres un asistente experto en gestión de lotes de tallos usuario puede pasarte varios items en distintos mensajes todos hacen parte del mismo lote por favor tenlo encuenta este lote tiene 300 tallos disponilbes. Sigue estas reglas:
+                description: `Eres un asistente experto en gestión de lotes de tallos usuario puede pasarte varios items en distintos mensajes todos hacen parte del mismo lote por favor tenlo encuenta este lote tiene ${amountStems} tallos disponilbes. Sigue estas reglas:
 
 2. Cada ítem debe incluir (en cualquier orden):
    - Clasificación (ej: NACIONAL, IMPORTADO)
    - Medida (ej: 60 CM, 80 CM)
    - Cantidad de tallos (ej: 30, 50)
-   - NO PUEDE HABER DOS ITEMS CON LA MISMA CLASIFICACIÓN Y MEDIDA (ej:NACIONAL 10 (30 CM) , NACIONAL 50 (30 CM)) esto lo puedes ajusar a NACIONAL 80 (30 CM) para completar 300 tallos, pero simpre inica que fe lo que cambiaste
+   - NO PUEDE HABER DOS ITEMS CON LA MISMA CLASIFICACIÓN Y MEDIDA (ej:NACIONAL 10 (30 CM) , NACIONAL 50 (30 CM)) esto lo puedes ajusar a NACIONAL 80 (30 CM) para completar ${amountStems} tallos, pero simpre inica que fe lo que cambiaste
 
 Formato DE TU respuesta:
 Detalles:
