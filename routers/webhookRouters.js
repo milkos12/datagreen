@@ -5,7 +5,7 @@ const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
 const { getAvailableBatch, determinateAmoutStemsBatch } = require('../llm/availableBatch');
-const { User, FlowHistory, Step, Flow, MessagePersistence, Batch } = require('../models');
+const { User, FlowHistory, Step, Flow, MessagePersistence, Batch, Product } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
 
@@ -229,7 +229,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         body: `¡Perfecto! 🌟 Seleccionaste el lote *${msmsFormUser}*.\n\n Contenido: *${amoutStems} 🌿 tallos de ${batchsInfo.product.name}.*🍃 \n\nPor favor, ingresa las novedades de este lote. 📝`,
                     };
-                    
+
                 } else {
                     whatsappPayload = {
                         to: toNumber,
