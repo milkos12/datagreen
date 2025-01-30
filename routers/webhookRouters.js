@@ -5,7 +5,7 @@ const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
 const { getAvailableBatch } = require('../llm/availableBatch');
-const { User, FlowHistory, Step, Flow } = require('../models');
+const { User, FlowHistory, Step, Flow, MessagePersistence } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
 
@@ -94,10 +94,11 @@ router.post('/', asyncHandler(async (req, res) => {
 
 
             const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-            if (haveMessages.length === 0) {
+            
+            if (haveMessages === null) {
                 console.log('YA TERMINOOOO........................................................................');
                 showMenuBatchs = true;
-                return;
+               
             }
             let sms = '';
             let stemsFinsh = false;
@@ -107,10 +108,16 @@ router.post('/', asyncHandler(async (req, res) => {
                 msmsFormUser = message.text.body;
             } catch (error) {
                 msmsFormUser = message.reply.buttons_reply.title
+                console.log("+++++++++++++++++  ",message.reply.buttons_reply );
+                console.log("{{{{{{{{{{{{{{{  ", message.reply)
             }
-            [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
-            feedback = sms;
-            feedback = feedback.replaceAll('**', '*');
+
+            if (!showMenuBatchs) {
+                [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
+                feedback = sms;
+                feedback = feedback.replaceAll('**', '*');
+            }
+            
 
             if (user) {
                 let URL = process.env.WHATSAPP_API_URL;
@@ -125,7 +132,7 @@ router.post('/', asyncHandler(async (req, res) => {
                     body: 'Dgreen Systems',
                 };
                 console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
-                if (stemsFinsh && !haveMessages) {
+                if (stemsFinsh && !showMenuBatchs) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     whatsappPayload = {
                         header: {
@@ -147,7 +154,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         view_once: true
                     };
-                } else if (haveMessages) {
+                } else if (showMenuBatchs) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     const loteList = await getAvailableBatch(user);
                     let listLotes = '';
@@ -165,19 +172,21 @@ router.post('/', asyncHandler(async (req, res) => {
                     
                     whatsappPayload = {
                         header: {
-                            text: feedback || 'Error en el servicio Dgreen Systems.',
+                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`,
                         },
                         body: {
-                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
+                            text: 'Lotes disponibles:',
                         },
                         action: {
-                            buttons: [
-                                loteList || { 
-                                    type: "quick_reply",
-                                    title: "No tienes lotes disponibles 🤗",
-                                    id: "0"
+                            buttons: buttonList && buttonList.length > 0 
+                            ? [...buttonList] 
+                            : [
+                                {
+                                  type: "quick_reply",
+                                  title: "No tienes lotes disponibles 🤗",
+                                  id: "0"
                                 }
-                            ]
+                              ]
                         },
                         type: "button",
                         to: toNumber,
