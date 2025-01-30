@@ -170,7 +170,7 @@ router.post('/', asyncHandler(async (req, res) => {
                     
                     whatsappPayload = {
                         header: {
-                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
+                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\n Por favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n ${listLotes}`,
                         },
                         body: {
                             text: 'Lotes disponibles:',
