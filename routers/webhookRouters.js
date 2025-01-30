@@ -170,10 +170,10 @@ router.post('/', asyncHandler(async (req, res) => {
                     
                     whatsappPayload = {
                         header: {
-                            text: feedback || 'Error en el servicio Dgreen Systems.',
+                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
                         },
                         body: {
-                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦. Por favor, selecciona uno y ¡empecemos!\n🔍 Lotes disponibles:\n ${listLotes}`,
+                            text: 'Lotes disponibles:',
                         },
                         action: {
                             buttons: buttonList && buttonList.length > 0 
