@@ -57,7 +57,3 @@ app.listen(3000, () => {
     console.log('Server up, and listen to 3000');
 });
 
-(async ()=>{
-    await availableTest.getAvailableBatch();
-})();
-

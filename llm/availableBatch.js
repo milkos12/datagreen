@@ -37,8 +37,6 @@ async function getAvailableBatch(user) {
         }
     });
 
-    user = {user_id: 'e2995234-c720-43bb-a6ef-fdcc2fb43e77'}
-
     let activitiesUser = await ContentActivity.findAll({
         where: {
             user_encharge_id: user.user_id,
