@@ -59,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
     Batch.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
     Batch.belongsTo(models.User, { foreignKey: 'created_by', as: 'creator' });
     Batch.belongsTo(models.Company, { foreignKey: 'company_id', as: 'company' });
+    Batch.hasMany(models.ContentActivity, { foreignKey: 'batch_id', as: 'contentActivity' });
   };
 
   return Batch;

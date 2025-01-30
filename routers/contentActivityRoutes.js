@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { ContentActivity, User, ContentBatch, Activity } = require('../models');
+const { ContentActivity, User, ContentBatch, Activity, Batch } = require('../models');
 const { body, param, validationResult } = require('express-validator');
 
 // Middleware to handle asynchronous errors
@@ -93,23 +93,30 @@ router.get('/:id',
     })
 );
 
-// CREATE a new ContentActivity
+// CREATE a new ContentActivity batch_id
 router.post('/create',
     validate([
         body('user_created_id').isUUID().withMessage('Valid user_created_id is required'),
         body('user_encharge_id').isUUID().withMessage('Valid user_encharge_id is required'),
         body('content_batch_id').isUUID().withMessage('Valid content_batch_id is required'),
+        body('batch_id').isUUID().withMessage('Valid batch_id is required'),
         body('activity_id').isUUID().withMessage('Valid activity_id is required'),
         body('quantity_of_stems').isInt({ min: 0 }).withMessage('Quantity of stems must be a non-negative integer'),
         body('is_active').optional().isBoolean().withMessage('is_active must be a boolean')
     ]),
     asyncHandler(async (req, res) => {
-        const { user_created_id, user_encharge_id, content_batch_id, activity_id, quantity_of_stems, is_active } = req.body;
+        const { user_created_id, user_encharge_id, batch_id, content_batch_id, activity_id, quantity_of_stems, is_active } = req.body;
 
         // Verify that the users exist
         const userCreated = await User.findByPk(user_created_id);
         if (!userCreated) {
             return res.status(400).json({ message: 'User (Created) not found' });
+        }
+
+        // Verify that the batch exists
+        const batch = await Batch.findByPk(batch_id);
+        if (!batch) {
+            return res.status(400).json({ message: 'Batch not found' });
         }
 
         const userEncharge = await User.findByPk(user_encharge_id);
@@ -134,6 +141,7 @@ router.post('/create',
             user_created_id,
             user_encharge_id,
             content_batch_id,
+            batch_id,
             activity_id,
             quantity_of_stems,
             is_active: is_active !== undefined ? is_active : true // Default to true if not provided
@@ -143,20 +151,21 @@ router.post('/create',
     })
 );
 
-// UPDATE an existing ContentActivity
+// UPDATE an existing ContentActivity batch_id
 router.put('/:id',
     validate([
         param('id').isUUID().withMessage('ContentActivity ID is invalid'),
         body('user_created_id').optional().isUUID().withMessage('Valid user_created_id is required'),
         body('user_encharge_id').optional().isUUID().withMessage('Valid user_encharge_id is required'),
         body('content_batch_id').optional().isUUID().withMessage('Valid content_batch_id is required'),
+        body('batch_id').optional().isUUID().withMessage('Valid batch_id is required'),
         body('activity_id').optional().isUUID().withMessage('Valid activity_id is required'),
         body('quantity_of_stems').optional().isInt({ min: 0 }).withMessage('Quantity of stems must be a non-negative integer'),
         body('is_active').optional().isBoolean().withMessage('is_active must be a boolean')
     ]),
     asyncHandler(async (req, res) => {
         const { id } = req.params;
-        const { user_created_id, user_encharge_id, content_batch_id, activity_id, quantity_of_stems, is_active } = req.body;
+        const { user_created_id, user_encharge_id, content_batch_id, batch_id, activity_id, quantity_of_stems, is_active } = req.body;
 
         const contentActivity = await ContentActivity.findByPk(id);
         if (!contentActivity) {
@@ -178,6 +187,14 @@ router.put('/:id',
                 return res.status(400).json({ message: 'User (Encharge) not found' });
             }
             contentActivity.user_encharge_id = user_encharge_id;
+        }
+
+        if (batch_id) {
+            const batch = await Batch.findByPk(batch_id);
+            if (!batch) {
+                return res.status(400).json({ message: 'Batch not found' });
+            }
+            contentActivity.batch_id = batch_id;
         }
 
         if (content_batch_id) {
