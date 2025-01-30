@@ -80,4 +80,5 @@ async function getAvailableBatch(user) {
 
 module.exports = {
     getAvailableBatch,
+    determinateAmoutStemsBatch
 }
