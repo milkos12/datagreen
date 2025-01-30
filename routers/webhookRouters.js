@@ -4,8 +4,8 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
-const { getAvailableBatch } = require('../llm/availableBatch');
-const { User, FlowHistory, Step, Flow, MessagePersistence } = require('../models');
+const { getAvailableBatch, determinateAmoutStemsBatch } = require('../llm/availableBatch');
+const { User, FlowHistory, Step, Flow, MessagePersistence, Batch, Product } = require('../models');
 const { getChatResponse } = require('../llm/noveltiesBatchLlm');
 require('dotenv').config(); // Cargar variables de entorno
 
@@ -104,12 +104,31 @@ router.post('/', asyncHandler(async (req, res) => {
             let stemsFinsh = false;
 
             let msmsFormUser = '';
+            let selectedBatch = false;
+            let nameLoteSelected = '';
+
             try {
                 msmsFormUser = message.text.body;
             } catch (error) {
                 msmsFormUser = message.reply.buttons_reply.title
-                console.log("+++++++++++++++++  ",message.reply.buttons_reply );
-                console.log("{{{{{{{{{{{{{{{  ", message.reply)
+                // identify batch name 
+                if(message.reply.buttons_reply.id.includes('-LOTES-CLASIFICACION')) {
+                    msmsFormUser = message.reply.buttons_reply.title;
+
+                    await MessagePersistence.create({
+                        user_id: user.user_id,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: 'Inicio del chat',
+                            }
+                        ],
+                        activity_id: 'd683fe0a-9c6b-4cbe-b131-f647c53fc215',
+                        whatsapp_id: message.reply.buttons_reply.title
+                    });
+                    nameLoteSelected = message.reply.buttons_reply.title;
+                    selectedBatch = true;
+                }
             }
 
             if (!showMenuBatchs) {
@@ -154,7 +173,7 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         view_once: true
                     };
-                } else if (showMenuBatchs) {
+                } else if (showMenuBatchs && !selectedBatch) {
                     URL = 'https://gate.whapi.cloud/messages/interactive';
                     const loteList = await getAvailableBatch(user);
                     let listLotes = '';
@@ -192,7 +211,26 @@ router.post('/', asyncHandler(async (req, res) => {
                         to: toNumber,
                         view_once: true
                     };
-                }else {
+                } else if (selectedBatch) {
+                    const batchsInfo = await Batch.findOne({
+                        where: {
+                            name: nameLoteSelected
+                        },
+                        include: [{
+                            model: Product,
+                            as: 'product',
+                            attributes: ['name']
+                        }]
+                    });
+
+                    const amoutStems = await determinateAmoutStemsBatch(batchsInfo.batch_id);
+
+                    whatsappPayload = {
+                        to: toNumber,
+                        body: `¡Perfecto! 🌟 Seleccionaste el lote *${msmsFormUser}*.\n\n Contenido: *${amoutStems} 🌿 tallos de ${batchsInfo.product.name}.*🍃 \n\nPor favor, ingresa las novedades de este lote. 📝`,
+                    };
+
+                } else {
                     whatsappPayload = {
                         to: toNumber,
                         body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*

@@ -18,6 +18,20 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE'
     },
+    activity_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'Activities',
+        key: 'activity_id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
+    whatsapp_id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     messages: {
       type: DataTypes.ARRAY(DataTypes.JSON),
       allowNull: false
@@ -30,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
 
   MessagePersistence.associate = (models) => {
     MessagePersistence.belongsTo(models.User, { foreignKey: 'user_id', as: 'createdById' });
+    MessagePersistence.belongsTo(models.Activity, { foreignKey: 'activity_id', as: 'activity' });
   };
 
   return MessagePersistence;
