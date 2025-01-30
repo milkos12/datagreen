@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
   
     Activity.associate = (models) => {
       Activity.belongsTo(models.Company, { foreignKey: 'company_id', as: 'company' });
+      Activity.hasMany(models.MessagePersistence, { foreignKey: 'activity_id', as: 'messagePersistence' });
     };
   
     return Activity;
