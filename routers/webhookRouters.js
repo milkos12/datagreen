@@ -258,10 +258,10 @@ async function smsFlow (payload) {
                         // Otros campos según tu necesidad
                     };
 
-                    whatsappSms (URL, toNumber, whatsappPayload);
+                    await whatsappSms (URL, toNumber, whatsappPayload);
 
                     if(endSaveBatch === 'Si') {
-                        smsFlow ({
+                        await smsFlow ({
                             messages: [
                                 {
                                     from_me: false,
