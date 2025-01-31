@@ -49,7 +49,7 @@ async function getAvailableBatch(user) {
         return activity.batch_id;
     });
     console.log('----------ññññ--ooo----_>>>>>  ', batchIds);
-
+    
     let batchsData = await Batch.findAll({
         where: {
             batch_id: batchIds
