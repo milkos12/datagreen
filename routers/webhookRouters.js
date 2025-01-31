@@ -257,20 +257,21 @@ async function smsFlow (payload) {
     Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
                         // Otros campos según tu necesidad
                     };
+                }
 
-                    await whatsappSms (URL, toNumber, whatsappPayload);
 
-                    if(endSaveBatch === 'Si') {
-                        await smsFlow ({
-                            messages: [
-                                {
-                                    from_me: false,
-                                    chat_id: 'number',
-                                    text: {body:'Reeplay sms menu'}
-                                }
-                            ]
-                        });
-                    }
+                await whatsappSms (URL, toNumber, whatsappPayload);
+
+                if(endSaveBatch === 'Si') {
+                    await smsFlow ({
+                        messages: [
+                            {
+                                from_me: false,
+                                chat_id: 'number',
+                                text: {body:'Reeplay sms menu'}
+                            }
+                        ]
+                    });
                 }
             }
 
