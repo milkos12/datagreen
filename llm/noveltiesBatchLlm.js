@@ -218,6 +218,7 @@ async function getChatResponse(user, message) {
   let stemsFinsh = false;
   let amountStems = 0;
   let batchInfo = {};
+  endSaveBatch = 'No';
   try {
     message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
@@ -265,6 +266,7 @@ ${convertirAListaTexto(content)}\n\n
 Si cometiste algún error, por favor, avísale a la persona encargada`;
         await deleteThread(user);
         await desactivateActivity(user, batchInfo.batch_id);
+        endSaveBatch = 'Si';
       } else {
         feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
       }
@@ -272,13 +274,13 @@ Si cometiste algún error, por favor, avísale a la persona encargada`;
     }
 
     let text = '';
-    [text, stemsFinsh] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
+    [text, stemsFinsh, endSaveBatch] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
 
     if(exit) {
       stemsFinsh = false;
     }
-    return [feedbackFromOpenAi, stemsFinsh];
+    return [feedbackFromOpenAi, stemsFinsh, endSaveBatch];
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
     return ['⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.', stemsFinsh ];

@@ -46,19 +46,27 @@ const getActivesFlowToUser = async (user) => {
     return activeFlow;
 }
 
-// POST Route para manejar mensajes entrantes
-router.post('/', asyncHandler(async (req, res) => {
-    const payload = req.body;
-    let feedback = '';
+async function whatsappSms (URL, toNumber, whatsappPayload) {
+    // Enviar el mensaje a WhatsApp
+    try {
+        const response = await axios.post(URL, whatsappPayload, {
+            headers: {
+                'Authorization': process.env.WHATSAPP_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
+        });
 
-    // Validar la estructura del payload
-    if (!payload || !Array.isArray(payload.messages)) {
-        console.error('Estructura de payload inválida:', payload);
-        return res.status(400).send('Estructura de payload inválida');
+        console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
+    } catch (apiError) {
+        console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
     }
+}
 
+async function smsFlow (payload) {
+    let feedback = '';
     // Iterar a través de cada mensaje
     for (const message of payload.messages) {
+        
         try {
             // **Nueva Verificación: Ignorar mensajes enviados por el bot**
             if (message.from_me) {
@@ -101,6 +109,7 @@ router.post('/', asyncHandler(async (req, res) => {
             }
             let sms = '';
             let stemsFinsh = false;
+            let endSaveBatch = 'No';
 
             let msmsFormUser = '';
             let selectedBatch = false;
@@ -131,7 +140,7 @@ router.post('/', asyncHandler(async (req, res) => {
             }
 
             if (!showMenuBatchs) {
-                [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
+                [sms, stemsFinsh, endSaveBatch] = await getChatResponse(user, msmsFormUser);
                 feedback = sms;
                 feedback = feedback.replaceAll('**', '*');
             }
@@ -248,19 +257,20 @@ router.post('/', asyncHandler(async (req, res) => {
     Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
                         // Otros campos según tu necesidad
                     };
-                }
-                // Enviar el mensaje a WhatsApp
-                try {
-                    const response = await axios.post(URL, whatsappPayload, {
-                        headers: {
-                            'Authorization': process.env.WHATSAPP_API_TOKEN,
-                            'Content-Type': 'application/json'
-                        }
-                    });
 
-                    console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
-                } catch (apiError) {
-                    console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
+                    whatsappSms (URL, toNumber, whatsappPayload);
+
+                    if(endSaveBatch === 'Si') {
+                        smsFlow ({
+                            messages: [
+                                {
+                                    from_me: false,
+                                    chat_id: 'number',
+                                    text: {body:'Reeplay sms menu'}
+                                }
+                            ]
+                        });
+                    }
                 }
             }
 
@@ -268,6 +278,21 @@ router.post('/', asyncHandler(async (req, res) => {
             console.error('Error al procesar el mensaje:', message, err);
         }
     }
+}
+
+
+// POST Route para manejar mensajes entrantes
+router.post('/', asyncHandler(async (req, res) => {
+    const payload = req.body;
+    let feedback = '';
+
+    // Validar la estructura del payload
+    if (!payload || !Array.isArray(payload.messages)) {
+        console.error('Estructura de payload inválida:', payload);
+        return res.status(400).send('Estructura de payload inválida');
+    }
+
+    await smsFlow (payload);
 
     res.status(200).send(`${feedback}`);
 }));
