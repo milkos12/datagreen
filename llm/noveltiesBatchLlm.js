@@ -274,7 +274,7 @@ Si cometiste algún error, por favor, avísale a la persona encargada`;
     }
 
     let text = '';
-    [text, stemsFinsh, endSaveBatch] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
+    [text, stemsFinsh ] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
 
     if(exit) {

@@ -267,7 +267,7 @@ async function smsFlow (payload) {
                         messages: [
                             {
                                 from_me: false,
-                                chat_id: 'number',
+                                chat_id: toNumber,
                                 text: {body:'Reeplay sms menu'}
                             }
                         ]
