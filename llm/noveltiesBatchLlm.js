@@ -36,9 +36,10 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh, ex
     } else {
       text = `${textFeedbackAmoutStems}\n${text}`;
     }
-
+    console.log("0000000000000000000------------->>", text);
     return [text, stemsFinsh];
   } catch (error) {
+    console.log("++++++++++++++++++++++++   --->> ", error)
     return ['', stemsFinsh];
     //throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
