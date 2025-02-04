@@ -94,7 +94,6 @@ const processMessageFlow = async (message) => {
   console.log(isBatchSelection," ################## ", message)
   // Handle batch selection
   if (isBatchSelection) {
-    console.log("dddddddddddddddddd  ", isBatchSelection)
     await MessageService.createPersistance(user.user_id, messageContent);
     return handleBatchSelection(user, messageContent);
   }
@@ -126,7 +125,7 @@ const handleMenuDisplay = async (user) => {
 
 const handleChatResponse = async (user, message) => {
   const [response, stemsFinished] = await ChatService.getChatResponse(user, message);
-  
+  console.log(response, stemsFinished, user)
   const payload = stemsFinished
     ? PayloadBuilder.interactiveResponse(
         user.phone_number,
