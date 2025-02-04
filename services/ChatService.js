@@ -1,4 +1,4 @@
-const { noveltiesBatch } = require('./toolsChatGPT/noveltiesBatctTools');
+const { noveltiesBatch } = require('./llm/toolsChatGPT/noveltiesBatctTools');
 const { BatchService, BatchOperations } = require('./batchService');
 const UserService = require('./userService');
 
