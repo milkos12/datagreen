@@ -5,7 +5,8 @@ const router = express.Router();
 const axios = require('axios');
 const MessageService = require('../services/MessageService');
 const UserService = require('../services/UsersService');
-const { BatchService, BatchOperations, ChatService } = require('../services/BatchService');
+const { BatchService, BatchOperations } = require('../services/BatchService');
+const ChatService = require('../services/ChatService');
 
 // Helpers
 const asyncHandler = fn => (req, res, next) => 
