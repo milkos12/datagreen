@@ -94,7 +94,7 @@ const processMessageFlow = async (message) => {
   console.log(isBatchSelection," ################## ", message)
   // Handle batch selection
   if (isBatchSelection) {
-
+    console.log("dddddddddddddddddd  ", isBatchSelection)
     await MessageService.createPersistance(user.user_id, messageContent);
     return handleBatchSelection(user, messageContent);
   }
