@@ -143,6 +143,7 @@ const ChatService = {
   }),
 
   getChatResponse: async (user, message) => {
+    console.log(message,"**********", user)
     try {
       const { currentBatch, amountStems } = await ChatService.processUserMessage(user, message);
       const aiResponse = await ChatService.handleAIResponse(user, amountStems);
