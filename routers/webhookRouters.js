@@ -125,7 +125,7 @@ const handleMenuDisplay = async (user) => {
 };
 
 const handleChatResponse = async (user, message) => {
-    console.log("++++++++++++++++++++++++++++++++ ", user, message)
+    console.log(message,"++++++++++++++++++++++++++++++++ ", user)
   const [response, stemsFinished] = await ChatService.getChatResponse(user, message);
 
   const payload = stemsFinished
