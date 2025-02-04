@@ -1,6 +1,6 @@
 const { noveltiesBatch } = require('../llm/toolsChatGPT/noveltiesBatctTools');
 const { BatchService, BatchOperations } = require('./BatchService');
-
+console.log("---")
 // Repositorios
 const messageRepository = {
   findMessagesByUserId: async (userId) => {
