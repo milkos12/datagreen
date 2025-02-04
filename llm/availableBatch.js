@@ -44,21 +44,11 @@ async function getAvailableBatch(user) {
             is_active: true
         }
     });
-
+    
     let batchIds = activitiesUser.map((activity) => {
-        return activity.content_batch_id;
+        return activity.batch_id;
     });
-
-    batchIds = await ContentBatch.findAll({
-        where: {
-            content_batch_id: batchIds
-        }
-    });
-
-    batchIds = batchIds.map((batchConten) => {
-        console.log('-.-.-. ', batchConten);
-        return batchConten.batch_id;
-    });
+    console.log('----------ññññ--ooo----_>>>>>  ', batchIds);
     
     let batchsData = await Batch.findAll({
         where: {

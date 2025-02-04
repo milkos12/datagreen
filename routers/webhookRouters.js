@@ -46,19 +46,27 @@ const getActivesFlowToUser = async (user) => {
     return activeFlow;
 }
 
-// POST Route para manejar mensajes entrantes
-router.post('/', asyncHandler(async (req, res) => {
-    const payload = req.body;
-    let feedback = '';
+async function whatsappSms (URL, toNumber, whatsappPayload) {
+    // Enviar el mensaje a WhatsApp
+    try {
+        const response = await axios.post(URL, whatsappPayload, {
+            headers: {
+                'Authorization': process.env.WHATSAPP_API_TOKEN,
+                'Content-Type': 'application/json'
+            }
+        });
 
-    // Validar la estructura del payload
-    if (!payload || !Array.isArray(payload.messages)) {
-        console.error('Estructura de payload inválida:', payload);
-        return res.status(400).send('Estructura de payload inválida');
+        console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
+    } catch (apiError) {
+        console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
     }
+}
 
+async function smsFlow (payload) {
+    let feedback = '';
     // Iterar a través de cada mensaje
     for (const message of payload.messages) {
+        
         try {
             // **Nueva Verificación: Ignorar mensajes enviados por el bot**
             if (message.from_me) {
@@ -96,12 +104,12 @@ router.post('/', asyncHandler(async (req, res) => {
             const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
             
             if (haveMessages === null) {
-                console.log('YA TERMINOOOO........................................................................');
                 showMenuBatchs = true;
                
             }
             let sms = '';
             let stemsFinsh = false;
+            let endSaveBatch = 'No';
 
             let msmsFormUser = '';
             let selectedBatch = false;
@@ -132,7 +140,7 @@ router.post('/', asyncHandler(async (req, res) => {
             }
 
             if (!showMenuBatchs) {
-                [sms, stemsFinsh] = await getChatResponse(user, msmsFormUser);
+                [sms, stemsFinsh, endSaveBatch] = await getChatResponse(user, msmsFormUser);
                 feedback = sms;
                 feedback = feedback.replaceAll('**', '*');
             }
@@ -188,13 +196,25 @@ router.post('/', asyncHandler(async (req, res) => {
                             })
                         });
                     }
+
+                    let batchsAvailable = buttonList && buttonList.length > 0  ? true : false;
+                    let textInfo = '';
+                    let textTititle = '';
+
+                    if(batchsAvailable) {
+                        textInfo = `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`;
+                        textTititle = 'Lotes disponibles:';
+                    } else {
+                        textInfo = `🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
+                        textTititle = '¡Wow, parece que terminaste! 💪🌿';
+                    }
                     
                     whatsappPayload = {
                         header: {
-                            text: `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`,
+                            text: textInfo,
                         },
                         body: {
-                            text: 'Lotes disponibles:',
+                            text: textTititle,
                         },
                         action: {
                             buttons: buttonList && buttonList.length > 0 
@@ -238,18 +258,20 @@ router.post('/', asyncHandler(async (req, res) => {
                         // Otros campos según tu necesidad
                     };
                 }
-                // Enviar el mensaje a WhatsApp
-                try {
-                    const response = await axios.post(URL, whatsappPayload, {
-                        headers: {
-                            'Authorization': process.env.WHATSAPP_API_TOKEN,
-                            'Content-Type': 'application/json'
-                        }
-                    });
 
-                    console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
-                } catch (apiError) {
-                    console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
+
+                await whatsappSms (URL, toNumber, whatsappPayload);
+
+                if(endSaveBatch === 'Si') {
+                    await smsFlow ({
+                        messages: [
+                            {
+                                from_me: false,
+                                chat_id: toNumber,
+                                text: {body:'Reeplay sms menu'}
+                            }
+                        ]
+                    });
                 }
             }
 
@@ -257,6 +279,21 @@ router.post('/', asyncHandler(async (req, res) => {
             console.error('Error al procesar el mensaje:', message, err);
         }
     }
+}
+
+
+// POST Route para manejar mensajes entrantes
+router.post('/', asyncHandler(async (req, res) => {
+    const payload = req.body;
+    let feedback = '';
+
+    // Validar la estructura del payload
+    if (!payload || !Array.isArray(payload.messages)) {
+        console.error('Estructura de payload inválida:', payload);
+        return res.status(400).send('Estructura de payload inválida');
+    }
+
+    await smsFlow (payload);
 
     res.status(200).send(`${feedback}`);
 }));

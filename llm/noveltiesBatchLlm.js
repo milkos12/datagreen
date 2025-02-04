@@ -1,6 +1,9 @@
 const { openai } = require('../services/setupOpenIa');
-const { MessagePersistence, User, Classification, Measure, Novelty, Batch } = require('../models');
+const { MessagePersistence, User, Classification, Measure, Novelty, Batch, ContentActivity } = require('../models');
 const { noveltiesBatch, noveltiesBatchStructureSMS } = require('./toolsChatGPT/noveltiesBatctTools');
+const { determinateAmoutStemsBatch } = require('./availableBatch');
+
+const batch = require('../models/batch');
 
 function convertirAListaTexto(detialBatch) {
   try {
@@ -33,9 +36,10 @@ function convertirAListaTextoSummary(detialBatch, amoutStemsLote, stemsFinsh, ex
     } else {
       text = `${textFeedbackAmoutStems}\n${text}`;
     }
-
+    
     return [text, stemsFinsh];
   } catch (error) {
+
     return ['', stemsFinsh];
     //throw new Error('Error al convertir el batch a texto: ' + error.message);
   }
@@ -51,6 +55,27 @@ async function deleteThread(user) {
   } catch (error) {
     throw new Error('Error al eliminar el hilo de mensajes: ' + error.message);
   }
+}
+
+async function desactivateActivity(user, batch_id) {
+  try {
+
+    const activitiesUser = await ContentActivity.findOne({
+      where: {
+        user_encharge_id: user.user_id,
+        is_active: true,
+        batch_id
+      }
+    });
+
+    if (activitiesUser) {
+      activitiesUser.set('is_active', false);
+      await activitiesUser.save();
+    }
+  } catch (error) {
+    throw new Error('Error al desactivar la actividad: ' + error.message);
+  }
+  
 }
 
 async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-20", temperature = 0.3, max_tokens = 300) {
@@ -192,6 +217,9 @@ async function saveNovelty(novelties, user, stemsBatch) {
 
 async function getChatResponse(user, message) {
   let stemsFinsh = false;
+  let amountStems = 0;
+  let batchInfo = {};
+  endSaveBatch = 'No';
   try {
     message = `las novedades para el lote son: ${message}`;
     await addNewMessage('user', message, user);
@@ -204,7 +232,9 @@ async function getChatResponse(user, message) {
 
     while (count < limitCount) {
       const messages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-      const finalResponse = await getCompletion(messages.messages, noveltiesBatch());
+      batchInfo = await Batch.findOne({ where: { name: messages.whatsapp_id}});
+      amountStems = await determinateAmoutStemsBatch(batchInfo.batch_id);
+      const finalResponse = await getCompletion(messages.messages, noveltiesBatch(amountStems));
       const processedResponse = processOpenAIResponse(finalResponse);
 
       feedbackFromOpenAi = processedResponse.feedbackFromOpenAi;
@@ -225,7 +255,7 @@ async function getChatResponse(user, message) {
     if (exit) {
       let valid = false;
       try {
-        valid = await saveNovelty(content, user, 300);
+        valid = await saveNovelty(content, user, amountStems);
       } catch (e) {
 
       }
@@ -236,6 +266,8 @@ ${convertirAListaTexto(content)}\n\n
 *🛑⚠️ Ya no podrás modificarlo.* 
 Si cometiste algún error, por favor, avísale a la persona encargada`;
         await deleteThread(user);
+        await desactivateActivity(user, batchInfo.batch_id);
+        endSaveBatch = 'Si';
       } else {
         feedbackFromOpenAi = `*Por favor corrige 👆⚠️⛔🍃*\n`
       }
@@ -243,13 +275,13 @@ Si cometiste algún error, por favor, avísale a la persona encargada`;
     }
 
     let text = '';
-    [text, stemsFinsh] = convertirAListaTextoSummary(content, 300, stemsFinsh, exit)
+    [text, stemsFinsh ] = convertirAListaTextoSummary(content, amountStems, stemsFinsh, exit)
     feedbackFromOpenAi = `${text} \n\n ${feedbackFromOpenAi}`;
 
     if(exit) {
       stemsFinsh = false;
     }
-    return [feedbackFromOpenAi, stemsFinsh];
+    return [feedbackFromOpenAi, stemsFinsh, endSaveBatch];
   } catch (error) {
     console.error('Error al obtener la respuesta de ChatGPT:', error.message);
     return ['⚠️ Lo siento, nuestro sistema está teniendo inconvenientes. Por favor, inténtalo más tarde. ⏳ Si el problema persiste, comunícate con el encargado.', stemsFinsh ];
