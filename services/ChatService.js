@@ -4,8 +4,6 @@ const { MessagePersistence } = require('../models');
 const { openai } = require('../services/setupOpenIa');
 const { Novelty, Classification, Measure } = require('../models');
 const { ContentActivity } = require('../models');
-
-console.log("---")
 // Repositorios
 const messageRepository = {
   findMessagesByUserId: async (userId) => {
@@ -147,7 +145,6 @@ const ChatService = {
   }),
 
   getChatResponse: async (user, message) => {
-    console.log(message,"**********", user)
     try {
       const { currentBatch, amountStems } = await ChatService.processUserMessage(user, message);
       const aiResponse = await ChatService.handleAIResponse(user, amountStems);
@@ -173,7 +170,12 @@ const ChatService = {
         
         return { message: '*Por favor corrige 👆⚠️⛔🍃*\n', completed: false };
       }
+      const t = { 
+        message: aiResponse.feedback || aiResponse.content, 
+        metadata: { stemsCount: amountStems } 
+      };
 
+      console.log("¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿¿---->>>  ", t)
       return { 
         message: aiResponse.feedback || aiResponse.content, 
         metadata: { stemsCount: amountStems } 
