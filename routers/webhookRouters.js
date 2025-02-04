@@ -1,301 +1,166 @@
 // routes/whatsappRouter.js
-
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { messageFlowsMenu, processUserResponse, getSelectionMainMenu } = require('./handlersFlows/menuMainHandler');
-const { getAvailableBatch, determinateAmoutStemsBatch } = require('../llm/availableBatch');
-const { User, FlowHistory, Step, Flow, MessagePersistence, Batch, Product } = require('../models');
-const { getChatResponse } = require('../llm/noveltiesBatchLlm');
-require('dotenv').config(); // Cargar variables de entorno
+const MessageService = require('../services/MessageService');
+const UserService = require('../services/UsersService');
+const { BatchService, BatchOperations, ChatService } = require('../services/BatchService');
 
-// Middleware para manejar errores asíncronos
-const asyncHandler = fn => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+// Helpers
+const asyncHandler = fn => (req, res, next) => 
+  Promise.resolve(fn(req, res, next)).catch(next);
+
+const formatPhoneNumber = (phone) => {
+  let formatted = phone.replace('@s.whatsapp.net', '');
+  formatted = formatted.startsWith('57') ? formatted.slice(2) : formatted;
+  return formatted.replace(/\D/g, '');
 };
 
-// Middleware para verificar la API key (opcional pero recomendado)
-const verifyApiKey = (req, res, next) => {
-    const apiKey = req.headers['x-api-key'];
-    const validApiKey = process.env.WHATSAPP_API_KEY;
+const getMessageContent = (message) => {
+  if (message.text?.body) return message.text.body;
+  if (message.reply?.buttons_reply?.title) return message.reply.buttons_reply.title;
+  return '';
+};
 
-    if (apiKey === validApiKey) {
-        next();
-    } else {
-        res.status(401).json({ message: 'Unauthorized' });
+// WhatsApp Client
+const WhatsAppClient = {
+  send: async (url, payload) => {
+    try {
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: process.env.WHATSAPP_API_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(`Mensaje enviado a ${payload.to}:`, response.data);
+    } catch (error) {
+      console.error(`Error enviando mensaje:`, error.response?.data || error.message);
     }
+  }
 };
 
-// Aplicar el middleware de verificación de API key
+// Payload Builders
+const PayloadBuilder = {
+  interactiveResponse: (toNumber, text, buttons) => ({
+    to: toNumber,
+    type: 'button',
+    view_once: true,
+    header: { text: text.header },
+    body: { text: text.body },
+    action: { buttons }
+  }),
+
+  textResponse: (toNumber, body) => ({
+    to: `57${toNumber}@s.whatsapp.net`,
+    body: body.replace(/\*\*/g, '*')
+  }),
+
+  batchSelection: async (user, batches) => {
+    const buttons = batches.map(batch => ({
+      type: "quick_reply",
+      title: batch.nameLote,
+      id: batch.idLote
+    }));
+
+    return PayloadBuilder.interactiveResponse(
+      user.phone_number,
+      {
+        header: batches.length 
+          ? "¡Hola! 🌟 Lotes disponibles para clasificar 🌿📦" 
+          : "¡Wow, parece que terminaste! 💪🌿",
+        body: batches.length 
+          ? "Selecciona un lote para comenzar:" 
+          : "No tienes lotes disponibles 🤗"
+      },
+      buttons.length ? buttons : [{ type: "quick_reply", title: "Sin lotes", id: "0" }]
+    );
+  }
+};
+
+// Core Logic
+const processMessageFlow = async (message) => {
+  // bot messages don't need to be processed
+  if (message.from_me) return;
+  
+  const fromNumber = formatPhoneNumber(message.chat_id);
+  if (!fromNumber) return;
+
+  const user = await UserService.findUser(fromNumber);
+  if (!user) return;
+
+  const messageContent = getMessageContent(message);
+  const isBatchSelection = message.reply?.buttons_reply?.id?.includes('-LOTES-CLASIFICACION');
+
+  // Handle batch selection
+  if (isBatchSelection) {
+    await MessageService.createPersistance(user.user_id, messageContent);
+    return handleBatchSelection(user, messageContent);
+  }
+
+  // Determine response type
+  const showMenu = await MessageService.shouldShowMenu(user.user_id);
+  return showMenu 
+    ? handleMenuDisplay(user) 
+    : handleChatResponse(user, messageContent);
+};
+
+const handleBatchSelection = async (user, batchName) => {
+  const batch = await BatchService.getBatchDetails(batchName);
+  const stems = await BatchOperations.calculateTotalStems(batch.batch_id);
+  
+  const payload = PayloadBuilder.textResponse(
+    user.phone_number,
+    `✅ Lote seleccionado: *${batchName}*\nContenido: ${stems} 🌿 tallos de ${batch.product.name}`
+  );
+
+  await WhatsAppClient.send(process.env.WHATSAPP_API_URL, payload);
+};
+
+const handleMenuDisplay = async (user) => {
+  const batches = await BatchService.getAvailableBatches(user);
+  const payload = await PayloadBuilder.batchSelection(user, batches);
+  await WhatsAppClient.send('https://gate.whapi.cloud/messages/interactive', payload);
+};
+
+const handleChatResponse = async (user, message) => {
+  const [response, stemsFinished] = await ChatService.getChatResponse(user, message);
+  
+  const payload = stemsFinished
+    ? PayloadBuilder.interactiveResponse(
+        user.phone_number,
+        { header: response, body: "Guardar Novedades:" },
+        [{ type: "quick_reply", title: "Guardar", id: "23" }]
+      )
+    : PayloadBuilder.textResponse(user.phone_number, response);
+
+  await WhatsAppClient.send(
+    stemsFinished 
+      ? 'https://gate.whapi.cloud/messages/interactive' 
+      : process.env.WHATSAPP_API_URL,
+    payload
+  );
+};
+
+// Middlewares
+const verifyApiKey = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  apiKey === process.env.WHATSAPP_API_KEY 
+    ? next() 
+    : res.status(401).json({ message: 'Unauthorized' });
+};
+
 router.use(verifyApiKey);
 
-// Veficar si el si el usuario tiene flujo activo 
-const getActivesFlowToUser = async (user) => {
-    // Verificar si el usuario tiene un flujo activo
-    const activeFlow = await FlowHistory.findOne({
-        where: {
-            createdById: user.user_id,
-            isCompleted: false
-        },
-        include: [{
-            model: Flow,
-            as: 'flow'
-        }]
-    });
-
-    return activeFlow;
-}
-
-async function whatsappSms (URL, toNumber, whatsappPayload) {
-    // Enviar el mensaje a WhatsApp
-    try {
-        const response = await axios.post(URL, whatsappPayload, {
-            headers: {
-                'Authorization': process.env.WHATSAPP_API_TOKEN,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log(`Mensaje de WhatsApp enviado a ${toNumber}:`, response.data);
-    } catch (apiError) {
-        console.error(`Error al enviar el mensaje de WhatsApp a ${toNumber}:`, apiError.response ? apiError.response.data : apiError.message);
-    }
-}
-
-async function smsFlow (payload) {
-    let feedback = '';
-    // Iterar a través de cada mensaje
-    for (const message of payload.messages) {
-        
-        try {
-            // **Nueva Verificación: Ignorar mensajes enviados por el bot**
-            if (message.from_me) {
-                console.log('Mensaje enviado por el bot, ignorando.');
-                continue; // Saltar al siguiente mensaje
-            }
-
-            // Extraer el número 'from'
-            let fromNumber = message.chat_id;
-
-            if (!fromNumber) {
-                console.warn('Mensaje sin el campo "from":', message);
-                continue; // Saltar este mensaje
-            }
-
-            fromNumber = fromNumber.replace('@s.whatsapp.net', '');
-
-            // Eliminar el prefijo '57' si está presente
-            if (fromNumber.startsWith('57')) {
-                fromNumber = fromNumber.slice(2);
-            }
-
-            // Eliminar cualquier carácter no numérico
-            fromNumber = fromNumber.replace(/\D/g, '');
-
-            // Obtener el usuario y verificar si está en un flujo activo
-            const user = await User.findOne({ where: { phone_number: fromNumber } });
-            let showMenuBatchs = false;
-            if (!user) {
-                console.log(`No se encontró un usuario con el número de teléfono: ${fromNumber}`);
-                continue;
-            }
-
-
-            const haveMessages = await MessagePersistence.findOne({ where: { user_id: user.user_id } });
-            
-            if (haveMessages === null) {
-                showMenuBatchs = true;
-               
-            }
-            let sms = '';
-            let stemsFinsh = false;
-            let endSaveBatch = 'No';
-
-            let msmsFormUser = '';
-            let selectedBatch = false;
-            let nameLoteSelected = '';
-
-            try {
-                msmsFormUser = message.text.body;
-            } catch (error) {
-                msmsFormUser = message.reply.buttons_reply.title
-                // identify batch name 
-                if(message.reply.buttons_reply.id.includes('-LOTES-CLASIFICACION')) {
-                    msmsFormUser = message.reply.buttons_reply.title;
-
-                    await MessagePersistence.create({
-                        user_id: user.user_id,
-                        messages: [
-                            {
-                                role: 'user',
-                                content: 'Inicio del chat',
-                            }
-                        ],
-                        activity_id: 'd683fe0a-9c6b-4cbe-b131-f647c53fc215',
-                        whatsapp_id: message.reply.buttons_reply.title
-                    });
-                    nameLoteSelected = message.reply.buttons_reply.title;
-                    selectedBatch = true;
-                }
-            }
-
-            if (!showMenuBatchs) {
-                [sms, stemsFinsh, endSaveBatch] = await getChatResponse(user, msmsFormUser);
-                feedback = sms;
-                feedback = feedback.replaceAll('**', '*');
-            }
-            
-
-            if (user) {
-                let URL = process.env.WHATSAPP_API_URL;
-                console.log(`Usuario encontrado: ${user.name} (Teléfono: ${user.phone_number})`);
-
-                // Preparar el 'to' con el prefijo '57'
-                const toNumber = `57${user.phone_number}@s.whatsapp.net`;
-
-                // Preparar el payload para la API de WhatsApp
-                let whatsappPayload = {
-                    to: toNumber,
-                    body: 'Dgreen Systems',
-                };
-                console.log('-----------oooooooo-------------->>>>> ', stemsFinsh, ' ....... ', feedback);
-                if (stemsFinsh && !showMenuBatchs) {
-                    URL = 'https://gate.whapi.cloud/messages/interactive';
-                    whatsappPayload = {
-                        header: {
-                            text: feedback || 'Error en el servicio Dgreen Systems.',
-                        },
-                        body: {
-                            text: "Guardar Novedades:",
-                        },
-                        action: {
-                            buttons: [
-                                {
-                                    type: "quick_reply",
-                                    title: "Guardar",
-                                    id: "23"
-                                }
-                            ]
-                        },
-                        type: "button",
-                        to: toNumber,
-                        view_once: true
-                    };
-                } else if (showMenuBatchs && !selectedBatch) {
-                    URL = 'https://gate.whapi.cloud/messages/interactive';
-                    const loteList = await getAvailableBatch(user);
-                    let listLotes = '';
-                    let buttonList = [];
-                    if(loteList) {
-                        loteList.forEach((lote) => {
-                            listLotes += lote.leable;
-                            buttonList.push({
-                                    type: "quick_reply",
-                                    title: lote.nameLote,
-                                    id: lote.idLote
-                            })
-                        });
-                    }
-
-                    let batchsAvailable = buttonList && buttonList.length > 0  ? true : false;
-                    let textInfo = '';
-                    let textTititle = '';
-
-                    if(batchsAvailable) {
-                        textInfo = `¡Hola! 🌟 Aquí están los lotes disponibles para clasificar 🌿📦.\nPor favor, selecciona uno y ¡empecemos!\n\n🔍 Lotes:\n\n${listLotes}`;
-                        textTititle = 'Lotes disponibles:';
-                    } else {
-                        textInfo = `🌟 No tienes lotes asignados en este momento🍷🌿📦.`;
-                        textTititle = '¡Wow, parece que terminaste! 💪🌿';
-                    }
-                    
-                    whatsappPayload = {
-                        header: {
-                            text: textInfo,
-                        },
-                        body: {
-                            text: textTititle,
-                        },
-                        action: {
-                            buttons: buttonList && buttonList.length > 0 
-                            ? [...buttonList] 
-                            : [
-                                {
-                                  type: "quick_reply",
-                                  title: "No tienes lotes disponibles 🤗",
-                                  id: "0"
-                                }
-                              ]
-                        },
-                        type: "button",
-                        to: toNumber,
-                        view_once: true
-                    };
-                } else if (selectedBatch) {
-                    const batchsInfo = await Batch.findOne({
-                        where: {
-                            name: nameLoteSelected
-                        },
-                        include: [{
-                            model: Product,
-                            as: 'product',
-                            attributes: ['name']
-                        }]
-                    });
-
-                    const amoutStems = await determinateAmoutStemsBatch(batchsInfo.batch_id);
-
-                    whatsappPayload = {
-                        to: toNumber,
-                        body: `¡Perfecto! 🌟 Seleccionaste el lote *${msmsFormUser}*.\n\n Contenido: *${amoutStems} 🌿 tallos de ${batchsInfo.product.name}.*🍃 \n\nPor favor, ingresa las novedades de este lote. 📝`,
-                    };
-
-                } else {
-                    whatsappPayload = {
-                        to: toNumber,
-                        body: feedback || `*⚠️ Error en el servicio de IA - Dgreen Systems.*
-    Intenta de nuevo en unos minutos. Si el error persiste, comunícate con el encargado.`,
-                        // Otros campos según tu necesidad
-                    };
-                }
-
-
-                await whatsappSms (URL, toNumber, whatsappPayload);
-
-                if(endSaveBatch === 'Si') {
-                    await smsFlow ({
-                        messages: [
-                            {
-                                from_me: false,
-                                chat_id: toNumber,
-                                text: {body:'Reeplay sms menu'}
-                            }
-                        ]
-                    });
-                }
-            }
-
-        } catch (err) {
-            console.error('Error al procesar el mensaje:', message, err);
-        }
-    }
-}
-
-
-// POST Route para manejar mensajes entrantes
+// Routes
 router.post('/', asyncHandler(async (req, res) => {
-    const payload = req.body;
-    let feedback = '';
+  if (!req.body?.messages) return res.status(400).send('Payload inválido');
+  
+  await Promise.all(
+    req.body.messages.map(msg => processMessageFlow(msg))
+  );
 
-    // Validar la estructura del payload
-    if (!payload || !Array.isArray(payload.messages)) {
-        console.error('Estructura de payload inválida:', payload);
-        return res.status(400).send('Estructura de payload inválida');
-    }
-
-    await smsFlow (payload);
-
-    res.status(200).send(`${feedback}`);
+  res.status(200).send('Procesamiento completado');
 }));
 
 module.exports = router;

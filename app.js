@@ -21,7 +21,6 @@ const permittedProcessesRoutes = require('./routers/permittedProcessesRoutes');
 const rolesRoutes = require('./routers/rolesRoutes');
 const app  = express();
 const errorHandler = require('./middlewares/errorHandler'); 
-const availableTest = require('./llm/availableBatch')
 
 app.use(express.json());
 
