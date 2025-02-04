@@ -1,5 +1,5 @@
 const { noveltiesBatch } = require('../llm/toolsChatGPT/noveltiesBatctTools');
-const { BatchService, BatchOperations } = require('./batchService');
+const { BatchService, BatchOperations } = require('./BatchService');
 const UserService = require('./userService');
 
 // Repositorios
