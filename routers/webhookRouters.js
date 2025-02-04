@@ -43,7 +43,7 @@ const WhatsAppClient = {
 // Payload Builders
 const PayloadBuilder = {
   interactiveResponse: (toNumber, text, buttons) => ({
-    to: toNumber,
+    to: `57${toNumber}@s.whatsapp.net`,
     type: 'button',
     view_once: true,
     header: { text: text.header },
