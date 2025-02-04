@@ -91,9 +91,10 @@ const processMessageFlow = async (message) => {
 
   const messageContent = getMessageContent(message);
   const isBatchSelection = message.reply?.buttons_reply?.id?.includes('-LOTES-CLASIFICACION');
-  console.log("################## ", message)
+  console.log(isBatchSelection," ################## ", message)
   // Handle batch selection
   if (isBatchSelection) {
+
     await MessageService.createPersistance(user.user_id, messageContent);
     return handleBatchSelection(user, messageContent);
   }
