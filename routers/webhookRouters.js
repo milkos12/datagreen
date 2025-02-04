@@ -100,6 +100,7 @@ const processMessageFlow = async (message) => {
 
   // Determine response type
   const showMenu = await MessageService.shouldShowMenu(user.user_id);
+  console.log("}}}}}}}}}}}}}}}}}}}}}  ", showMenu)
   return showMenu 
     ? handleMenuDisplay(user) 
     : handleChatResponse(user, messageContent);
