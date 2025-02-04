@@ -1,5 +1,6 @@
 const { noveltiesBatch } = require('../llm/toolsChatGPT/noveltiesBatctTools');
 const { BatchService, BatchOperations } = require('./BatchService');
+const { MessagePersistence } = require('../models');
 console.log("---")
 // Repositorios
 const messageRepository = {
