@@ -227,7 +227,7 @@ async function smsFlow (payload) {
                                 }
                               ]
                         },
-                        type: "list",
+                        type: "button",
                         to: toNumber,
                         view_once: true
                     };
