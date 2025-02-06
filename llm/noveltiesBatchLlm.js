@@ -100,6 +100,7 @@ async function getCompletion(messages, functions = [], model = "gpt-4o-2024-11-2
 }
 
 async function createNewTreadMessages(user, message) {
+  console.log(message,"-------- ",user)
   try {
     const existingUser = await User.findByPk(user.user_id);
     if (!existingUser) {
