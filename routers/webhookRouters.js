@@ -289,6 +289,7 @@ router.post('/', asyncHandler(async (req, res) => {
     let feedback = '';
 
     // Validar la estructura del payload
+    console.log(payload)
     if (!payload || !Array.isArray(payload.messages)) {
         console.error('Estructura de payload inválida:', payload);
         return res.status(400).send('Estructura de payload inválida');
