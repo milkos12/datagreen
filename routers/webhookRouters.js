@@ -259,7 +259,7 @@ async function smsFlow (payload) {
                     };
                 }
 
-                console.log("======================  ", whatsappPayload)
+                console.log("===================  ", whatsappPayload)
 
                 await whatsappSms (URL, toNumber, whatsappPayload);
 
